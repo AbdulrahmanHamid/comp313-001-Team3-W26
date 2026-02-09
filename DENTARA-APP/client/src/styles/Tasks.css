@@ -1,0 +1,296 @@
+/*******************************************
+ * TASKS MODULE – SHARED LAYOUT
+ *******************************************/
+.tab-content {
+  background: #fafcf5;
+  padding: 20px 24px;
+  border-radius: 12px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.04);
+  margin-top: 15px;
+}
+
+/* Header row: title + add button */
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.task-header h3 {
+  margin: 0;
+  font-weight: 700;
+  color: #3c0094;
+}
+
+/*******************************************
+ * BUTTONS
+ *******************************************/
+.green-btn {
+  background: #2ecc71;
+  color: #ffffff;
+  border: none;
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s;
+}
+
+.green-btn:hover {
+  background: #27ae60;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+  transform: translateY(-1px);
+}
+
+.small-btn {
+  background: #7e5cfb;
+  color: #ffffff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s ease;
+}
+
+.small-btn:hover {
+  background: #6341d8;
+  transform: translateY(-1px);
+}
+
+.cancel-btn {
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.cancel-btn:hover {
+  background: #ececec;
+}
+
+/*******************************************
+ * SUMMARY CARDS
+ *******************************************/
+.task-cards-container {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.task-card {
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 70px;
+}
+
+.task-card h4 {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.task-card p {
+  margin: 4px 0 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+/* Color variants to match your palette */
+.task-card.blue {
+  background: #3b82f6;
+}
+
+.task-card.orange {
+  background: #f59e0b;
+}
+
+.task-card.green {
+  background: #4caf50;
+}
+
+.task-card.red {
+  background: #e53935;
+}
+
+/*******************************************
+ * TABLE STYLING (reuses clinic look)
+ *******************************************/
+.module-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.module-table th,
+.module-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #ececec;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.module-table thead th {
+  background: #e8ffb7;
+  color: #3c0094;
+  font-weight: 700;
+}
+
+.module-table tbody tr:nth-child(even) {
+  background: #fafcf5;
+}
+
+/*******************************************
+ * PRIORITY TAGS
+ *******************************************/
+.priority {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.priority.high {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+}
+
+.priority.medium {
+  background: #fff8e1;
+  color: #ef6c00;
+  border: 1px solid #ffcc80;
+}
+
+.priority.low {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+
+/*******************************************
+ * STATUS TAGS
+ *******************************************/
+.status-tag {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  display: inline-block;
+}
+
+.status-tag.pending {
+  background: #fbc02d;
+}
+
+.status-tag.completed {
+  background: #4caf50;
+}
+
+.status-tag.in\ progress {
+  background: #7e5cfb;
+}
+
+/*******************************************
+ * ADD TASK MODAL
+ *******************************************/
+.task-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.38);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+.task-modal .modal-content {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px 22px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.task-modal h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-weight: 700;
+  color: #3c0094;
+}
+
+/* Modal form controls */
+.task-modal input,
+.task-modal select,
+.task-modal textarea {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.task-modal textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+/*******************************************
+ * TASK SUMMARY PAGE EXTRAS (OPTIONAL)
+ *******************************************/
+.task-summary-section .summary-items {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.summary-card {
+  flex: 1;
+  background: #c3f23f;
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.summary-card.pending {
+  background: #fff8e1;
+}
+
+.summary-card.completed {
+  background: #e8f5e9;
+}
+
+.summary-progress {
+  margin-top: 16px;
+  background: #eceff1;
+  border-radius: 999px;
+  overflow: hidden;
+  height: 10px;
+}
+
+.summary-progress .bar {
+  height: 100%;
+  background: #7e5cfb;
+  transition: width 0.3s ease;
+}

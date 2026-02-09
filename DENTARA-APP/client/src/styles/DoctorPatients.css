@@ -1,0 +1,612 @@
+/* ===========================
+   DOCTOR PATIENTS PAGE
+=========================== */
+.doctor-patient-list {
+  padding: 10px;
+}
+
+.doctor-patient-page {
+  padding: 10px;
+}
+
+.page-title {
+  background-color: #78d494;
+  color: #000;
+  font-size: 1.8rem;
+  font-weight: 700;
+  padding: 12px 20px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+/* Search and Action Bar */
+.search-action-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  padding: 10px 15px;
+  flex: 1;
+  max-width: 400px;
+  font-size: 16px;
+  border: 2px solid #78d494;
+  border-radius: 8px;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #5bbf84;
+}
+
+.add-patient-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #78d494;
+  color: #000;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-patient-btn:hover {
+  background-color: #65c080;
+}
+
+/* Add Patient Form */
+.patient-form-container {
+  background-color: #f8fbe7;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.patient-form-container h3 {
+  margin: 0 0 15px 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.form-field {
+  margin-bottom: 0;
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  outline: none;
+  border-color: #78d494;
+}
+
+.submit-btn {
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #78d494;
+  color: #000;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+  background-color: #65c080;
+}
+
+/* Layout structure */
+.patient-layout {
+  display: flex;
+  gap: 20px;
+}
+
+/* Left side (info + history + notes) */
+.patient-main {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.patient-card {
+  background-color: #b4db51;
+  padding: 15px 20px;
+  border-radius: 10px;
+}
+
+.patient-card h3 {
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  font-size: 1.1rem;
+}
+
+.patient-info-content p {
+  margin: 6px 0;
+  font-size: 0.95rem;
+}
+
+/* Table styling */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.history-table th,
+.history-table td {
+  padding: 10px;
+  border: 1px solid #ccc;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.history-table th {
+  background-color: #f0f0f0;
+  font-weight: 700;
+}
+
+/* Notes section */
+.notes-area {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+.save-btn {
+  background-color: #fff;
+  border: 1px solid #78d494;
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.save-btn:hover {
+  background-color: #e4f5d2;
+}
+
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Right section (Quick Actions) */
+.quick-actions-box {
+  flex: 1;
+  background-color: #b4db51;
+  padding: 15px 20px;
+  border-radius: 10px;
+  height: fit-content;
+}
+
+.quick-actions-box h3 {
+  margin: 0 0 12px 0;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.quick-actions-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.quick-btn {
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin: 8px 0;
+  padding: 5px 0;
+  transition: color 0.3s;
+}
+
+.quick-btn:hover {
+  color: #145e2f;
+  text-decoration: underline;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgb(73, 172, 147);
+  border: none;
+  color: black;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 15px;
+  padding: 10px 15px;
+  border-radius: 8px;
+}
+
+.back-btn:hover {
+  color: white;
+  background: rgb(60, 150, 130);
+}
+
+.back-icon {
+  font-size: 1.2rem;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.table-btn {
+  background-color: #fff;
+  border: 1px solid #78d494;
+  border-radius: 15px;
+  padding: 5px 15px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: background-color 0.3s;
+}
+
+.table-btn:hover {
+  background-color: #d8f4dc;
+}
+/* Clinical Notes History */
+.notes-history {
+  margin-top: 10px;
+}
+
+.note-item {
+  background-color: white;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.note-header {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.note-content {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #333;
+}
+
+.search-action-bar {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 15px;
+  border: 2px solid #a6e4b6;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #78d494;
+  box-shadow: 0 0 0 3px rgba(120, 212, 148, 0.1);
+}
+
+.add-patient-form-container {
+  background: white;
+  border: 2px solid #a6e4b6;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.add-patient-form-container h3 {
+  color: #78d494;
+  margin: 0 0 15px 0;
+  font-size: 1.1rem;
+}
+
+.add-patient-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-field label {
+  font-weight: 600;
+  color: #78d494;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+.form-field input {
+  padding: 10px 12px;
+  border: 2px solid #a6e4b6;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: #78d494;
+  box-shadow: 0 0 0 3px rgba(120, 212, 148, 0.1);
+}
+
+.submit-btn {
+  background-color: #78d494;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: #47b86d;
+  box-shadow: 0 4px 12px rgba(120, 212, 148, 0.3);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.patient-info-card {
+  background: linear-gradient(135deg, #f5faf5 0%, #ffffff 100%);
+  border: 2px solid #a6e4b6;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.patient-info-card h3 {
+  color: #78d494;
+  margin: 0 0 15px 0;
+  font-weight: 700;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #78d494;
+}
+
+.info-value {
+  color: #2d2d2d;
+}
+
+.patient-details-section {
+  background: white;
+  border: 2px solid #a6e4b6;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.patient-details-section h3 {
+  color: #78d494;
+  margin: 0 0 15px 0;
+  font-weight: 700;
+}
+
+.add-note-form {
+  background: #f5faf5;
+  border: 2px solid #a6e4b6;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.add-note-form h4 {
+  color: #78d494;
+  margin: 0 0 10px 0;
+  font-size: 0.95rem;
+}
+
+.note-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #a6e4b6;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+  transition: all 0.3s ease;
+}
+
+.note-textarea:focus {
+  outline: none;
+  border-color: #78d494;
+  box-shadow: 0 0 0 3px rgba(120, 212, 148, 0.1);
+}
+
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.note-card {
+  background: #f5faf5;
+  border-left: 4px solid #78d494;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.note-header strong {
+  color: #78d494;
+  font-size: 0.9rem;
+}
+
+.note-doctor {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.note-text {
+  color: #2d2d2d;
+  margin: 8px 0;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.table-btn {
+  background-color: #78d494;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+}
+
+.table-btn:hover {
+  background-color: #47b86d;
+  box-shadow: 0 2px 8px rgba(120, 212, 148, 0.3);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-completed {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.history-table thead {
+  background-color: #78d494;
+  color: white;
+}
+
+.history-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.history-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.2s ease;
+}
+
+.history-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.history-table td {
+  padding: 12px;
+  font-size: 0.9rem;
+  color: #2d2d2d;
+}

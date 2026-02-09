@@ -1,0 +1,93 @@
+.home-container {
+  display: flex;
+  height: 100vh;
+  font-family: 'Arial', sans-serif;
+}
+
+.home-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 60px;
+  background-color: #f5f5f5;
+}
+
+.star-icon {
+  font-size: 40px;
+  color: #7c5cce;
+  margin-bottom: 20px;
+}
+
+.home-left h1 {
+  font-size: 42px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #000;
+}
+
+.subtitle {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 50px;
+  text-align: center;
+}
+
+.home-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.btn-login {
+  padding: 18px 40px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  background-color: #7c5cce;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-login:hover {
+  background-color: #6a4bb8;
+  transform: translateY(-2px);
+}
+
+.btn-signup {
+  padding: 18px 40px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  background-color: #a0d468;
+  color: #000;
+  transition: all 0.3s ease;
+}
+
+.btn-signup:hover {
+  background-color: #8fc057;
+  transform: translateY(-2px);
+}
+
+.home-right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #a0d468 0%, #c8e69e 100%);
+  border-radius: 50px 0 0 50px;
+}
+
+.dentara-logo h1 {
+  font-size: 80px;
+  font-weight: bold;
+  color: #000;
+  letter-spacing: 5px;
+}

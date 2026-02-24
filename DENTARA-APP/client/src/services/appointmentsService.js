@@ -195,4 +195,15 @@ export const fixMissingDoctorNames = async () => {
         console.error("Error fixing doctor names:", error);
         throw error;
     }
+    
+};
+// Listen to appointments for a specific date (YYYY-MM-DD)
+export const listenToAppointmentsByDate = (dateStr, callback) => {
+  const appointmentsRef = collection(db, "appointments");
+  const q = query(appointmentsRef, where("date", "==", dateStr));
+
+  return onSnapshot(q, (snapshot) => {
+    const list = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    callback(list);
+  });
 };

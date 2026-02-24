@@ -33,6 +33,7 @@ import PatientsPage from "./pages/Clinic/Patients/PatientsPage";
 import DoctorPatientsPage from "./pages/Clinic/Patients/DoctorPatients";
 import AllPatientsPage from "./pages/Clinic/Patients/AllPatients";
 import PatientDetailsPage from "./pages/Clinic/Patients/PatientDetails";
+import DailyWrapUpPage from './pages/Clinic/DailyWrapUp';
 
 //manager pages
 import ManagerDashboard from './pages/Manager/ManagerDashboard';
@@ -110,6 +111,7 @@ function App() {
                         <Route path="messages" element={<div>Messages (Coming Soon)</div>} />
                         <Route path="recalls" element={<div>Recalls (Coming Soon)</div>} />
                         <Route path="schedule" element={<div>Schedule (Coming Soon)</div>} />
+                         <Route path="wrapup" element={<DailyWrapUpPage />} />
                     </Route>
 
                     {/* Doctor Dashboard  */}

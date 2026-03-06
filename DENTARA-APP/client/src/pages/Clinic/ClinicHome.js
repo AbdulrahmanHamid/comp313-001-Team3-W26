@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { listenToTasks, updateTaskStatus } from "../../services/tasksService";
 import { listenToAllAppointments } from "../../services/appointmentsService";
 import { useNavigate } from "react-router-dom";
+import { getTodayLocal } from "../../utils/dateUtils";
 import "../../styles/ClinicDashboard.css";
 
 const ClinicHome = () => {
@@ -31,7 +32,7 @@ const ClinicHome = () => {
 
   useEffect(() => {
     const unsubscribe = listenToAllAppointments((allAppts) => {
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = getTodayLocal();
       
       // Calculate No-Shows
       const count = allAppts.filter(a => a.date === todayStr && a.status === "No-Show").length;

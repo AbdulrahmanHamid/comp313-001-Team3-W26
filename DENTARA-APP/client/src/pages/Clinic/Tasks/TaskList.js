@@ -3,16 +3,22 @@ import {
   listenToTasks,
   addTask,
   updateTaskStatus,
+  updateTask
 } from "../../../services/tasksService";
+import { listenToStaff } from "../../../services/usersService";
+import { useAuth } from "../../../contexts/AuthContext";
 import "../../../styles/Tasks.css";
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
+  const [staffList, setStaffList] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const { currentUser } = useAuth();
 
   // Search + filter
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
+  // Default to "Pending"
+  const [statusFilter, setStatusFilter] = useState("Pending");
 
   // New task form
   const [newTask, setNewTask] = useState({
@@ -25,11 +31,18 @@ const TaskList = () => {
 
   // 🔵 BACKEND SYNC — Your Assigned Iteration 1 Task
   useEffect(() => {
-    const unsubscribe = listenToTasks((updatedTasks) => {
+    const unsubscribeTasks = listenToTasks((updatedTasks) => {
       setTasks(updatedTasks);
     });
 
-    return () => unsubscribe();
+    const unsubscribeStaff = listenToStaff((staff) => {
+      setStaffList(staff);
+    });
+
+    return () => {
+      unsubscribeTasks();
+      unsubscribeStaff();
+    };
   }, []);
 
   // 🔵 Add task
@@ -56,14 +69,28 @@ const TaskList = () => {
     );
   };
 
+  // 🔵 Take over a task
+  const handleTakeOverTask = async (taskId) => {
+    try {
+      // Find the logged-in user in the staff list to get their Full Name instead of email
+      const staffMember = staffList.find((s) => s.email === currentUser?.email);
+      const claimName = staffMember ? staffMember.fullName : (currentUser?.email || "Staff Member");
+      
+      await updateTask(taskId, { assignedTo: claimName });
+    } catch (e) {
+      alert("Error assigning task");
+    }
+  };
+
   // 🔵 Apply search + status filter
   const filteredTasks = tasks
     .filter((t) =>
       t.task.toLowerCase().includes(searchTerm.toLowerCase())
     )
-    .filter((t) =>
-      statusFilter === "All" ? true : t.status === statusFilter
-    );
+    .filter((t) => {
+      if (statusFilter === "All") return t.status !== "Completed";
+      return t.status === statusFilter;
+    });
 
   return (
     <div className="tab-content">
@@ -89,33 +116,10 @@ const TaskList = () => {
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
-          <option value="All">All</option>
+          <option value="All">All (Active)</option>
           <option value="Pending">Pending</option>
           <option value="Completed">Completed</option>
         </select>
-      </div>
-
-      {/* Summary Cards */}
-      <div className="task-cards-container">
-        <div className="task-card blue">
-          <h4>Total Tasks</h4>
-          <p>{tasks.length}</p>
-        </div>
-
-        <div className="task-card orange">
-          <h4>Pending</h4>
-          <p>{tasks.filter((t) => t.status === "Pending").length}</p>
-        </div>
-
-        <div className="task-card green">
-          <h4>Completed</h4>
-          <p>{tasks.filter((t) => t.status === "Completed").length}</p>
-        </div>
-
-        <div className="task-card red">
-          <h4>High Priority</h4>
-          <p>{tasks.filter((t) => t.priority === "High").length}</p>
-        </div>
       </div>
 
       {/* Task Table */}
@@ -132,35 +136,54 @@ const TaskList = () => {
         </thead>
 
         <tbody>
-          {filteredTasks.map((t) => (
-            <tr key={t.id}>
-              <td>{t.task}</td>
-              <td>{t.assignedTo || "—"}</td>
-
-              <td>
-                <span className={`priority ${t.priority.toLowerCase()}`}>
-                  {t.priority}
-                </span>
-              </td>
-
-              <td>{t.dueDate || "—"}</td>
-
-              <td>
-                <span className={`status-tag ${t.status.toLowerCase()}`}>
-                  {t.status}
-                </span>
-              </td>
-
-              <td>
-                <button
-                  className="small-btn"
-                  onClick={() => handleStatusToggle(t.id, t.status)}
-                >
-                  {t.status === "Completed" ? "↺ Reopen" : "✔ Complete"}
-                </button>
+          {filteredTasks.length === 0 ? (
+            <tr>
+              <td colSpan="6" className="empty-state">
+                No tasks found in this view.
               </td>
             </tr>
-          ))}
+          ) : (
+            filteredTasks.map((t) => (
+              <tr key={t.id}>
+                <td>{t.task}</td>
+                <td>{t.assignedTo || "—"}</td>
+
+                <td>
+                  <span className={`priority ${t.priority.toLowerCase()}`}>
+                    {t.priority}
+                  </span>
+                </td>
+
+                <td>{t.dueDate || "—"}</td>
+
+                <td>
+                  <span className={`status-tag ${t.status.toLowerCase()}`}>
+                    {t.status}
+                  </span>
+                </td>
+
+                <td>
+                  <div className="recall-actions">
+                    <button
+                      className="small-btn"
+                      onClick={() => handleStatusToggle(t.id, t.status)}
+                    >
+                      {t.status === "Completed" ? "↺ Reopen" : "✔ Complete"}
+                    </button>
+
+                    {t.status !== "Completed" && (
+                      <button
+                        className="small-btn clinic-btn-back"
+                        onClick={() => handleTakeOverTask(t.id)}
+                      >
+                        Do this task
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
 
@@ -197,13 +220,19 @@ const TaskList = () => {
               }
             />
 
-            <input
-              placeholder="Assigned To (Optional)"
+            <select
               value={newTask.assignedTo}
               onChange={(e) =>
                 setNewTask({ ...newTask, assignedTo: e.target.value })
               }
-            />
+            >
+              <option value="">Unassigned</option>
+              {staffList.map((staff) => (
+                <option key={staff.id} value={staff.fullName}>
+                  {staff.fullName}
+                </option>
+              ))}
+            </select>
 
             <textarea
               placeholder="Notes (Optional)"
@@ -230,4 +259,3 @@ const TaskList = () => {
 };
 
 export default TaskList;
-

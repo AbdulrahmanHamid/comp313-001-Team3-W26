@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { listenToAllAppointments } from "../../../services/appointmentsService";
 import ManageAppointments from "./ManageAppointments";
 import FilterBar from "../../../components/FilterBar";
+import { getTodayLocal } from "../../../utils/dateUtils";
 import "../../../styles/ClinicDashboard.css";
 
 const AppointmentsPage = () => {
@@ -21,7 +22,7 @@ const AppointmentsPage = () => {
     setFilters({ ...filters, [filterName]: value });
   };
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = getTodayLocal();
 
   let filtered = appointments
     .filter((apt) => filters.status === "All" || apt.status === filters.status)

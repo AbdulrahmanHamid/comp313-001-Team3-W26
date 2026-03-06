@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { listenToTasks } from "../../../services/tasksService";
+import { getTodayLocal } from "../../../utils/dateUtils";
+import "../../../styles/Tasks.css";
 
 const TaskSummary = () => {
   const [tasks, setTasks] = useState([]);
@@ -36,7 +38,7 @@ const TaskSummary = () => {
   };
 
   const getTodayMetrics = () => {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getTodayLocal();
     const filtered = tasks.filter((t) => {
       const taskDateStr = t.dueDate || t.createdAt;
       if (!taskDateStr) return false;

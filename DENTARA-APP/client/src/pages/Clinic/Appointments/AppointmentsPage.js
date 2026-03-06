@@ -8,8 +8,7 @@ const AppointmentsPage = () => {
   const [appointments, setAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showForm, setShowForm] = useState(false);
-
-  // Default date filter is now "Today"
+  // Default filter set to "Today"
   const [filters, setFilters] = useState({ status: "All", date: "Today", sort: "Date" });
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -95,7 +94,7 @@ const AppointmentsPage = () => {
       />
 
       {filtered.length === 0 ? (
-        <p style={{ textAlign: "center", padding: "20px", color: "#666", fontWeight: "bold", fontSize: "1.1rem" }}>
+        <p style={{ textAlign: "center", padding: "20px", color: "#666", fontWeight: "bold" }}>
           {filters.date === "Today" ? "No appointments today." : "No appointments found."}
         </p>
       ) : (

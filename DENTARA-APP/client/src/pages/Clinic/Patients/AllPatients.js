@@ -26,9 +26,24 @@ const AllPatients = () => {
 
   const getDoctorName = (doctorId) => doctors.find((d) => d.id === doctorId)?.fullName || "Not Assigned";
 
-  const handleEdit = (patient) => {
-    setSelectedPatient(patient);
-    setFormData(patient);
+  const handleEdit = (rawPatient) => {
+    setSelectedPatient(rawPatient);
+    
+    // Safety Fallback: If patient only has "name", split it into first and last name
+    const nameParts = (rawPatient.name || rawPatient.patientName || "").split(" ");
+    const fName = rawPatient.firstName || nameParts[0] || "";
+    const lName = rawPatient.lastName || nameParts.slice(1).join(" ") || "";
+
+    setFormData({
+      firstName: fName,
+      lastName: lName,
+      age: rawPatient.age || "",
+      phone: rawPatient.phone || "",
+      email: rawPatient.email || "",
+      condition: rawPatient.condition || "",
+      doctorId: rawPatient.doctorId || "",
+      doctorName: rawPatient.doctorName || ""
+    });
     setShowForm(true);
   };
 
@@ -51,19 +66,22 @@ const AllPatients = () => {
     `${p.firstName} ${p.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const tableActions = (patient) => [
-    { label: "Manage", onClick: () => handleEdit(patient) },
-    { label: "View", onClick: () => navigate(`/staff-dashboard/patients/details/${patient.id}`) },
-  ];
-
+  // Attach raw patient object to the mapped row so actions have full context
   const tableRows = filtered.map((p) => ({
     id: p.id,
+    _rawPatient: p,
     "Name": `${p.firstName} ${p.lastName}`,
     "Age": p.age || "-",
     "Phone": p.phone || "-",
     "Primary Doctor": getDoctorName(p.doctorId),
     "Condition": p.condition || "-",
   }));
+
+  // Actions now extract the _rawPatient
+  const tableActions = (row) => [
+    { label: "Manage", onClick: () => handleEdit(row._rawPatient) },
+    { label: "View", onClick: () => navigate(`/staff-dashboard/patients/details/${row.id}`) },
+  ];
 
   return (
     <div className="clinic-content-box">

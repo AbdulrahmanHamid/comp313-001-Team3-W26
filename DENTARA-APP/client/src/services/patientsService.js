@@ -104,3 +104,18 @@ export const getAllPatients = async () => {
     return [];
   }
 };
+
+// update patient's recall contact status
+export const updatePatientRecallStatus = async (patientId, isContacted) => {
+  try {
+    const patientRef = doc(db, "patients", patientId);
+    await updateDoc(patientRef, {
+      recallContacted: isContacted,
+      recallContactedAt: isContacted ? new Date().toISOString() : null,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Error updating patient recall status:", error);
+    throw error;
+  }
+};

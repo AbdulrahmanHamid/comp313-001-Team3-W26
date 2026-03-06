@@ -27,12 +27,19 @@ const ClinicDashboard = () => {
             KPI Tiles
           </button>
 
-          <button 
+          {/* <button 
             className="wrapup-btn active" 
             onClick={() => alert("Coming in the next release, 2.0.")}
           >
             Daily Wrap-Up
-          </button>
+          </button> */}
+
+        <button
+        className="wrapup-btn"
+        onClick={() => navigate("wrapup")}
+      >
+  Daily Wrap-Up
+</button>
         </div>
       </header>
 

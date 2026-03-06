@@ -82,8 +82,11 @@ const NoShowList = () => {
     }
   };
 
+  // We map the raw appointment data to the row format expected by DataTable
+  // We also attach the raw 'apt' object so actions can access the original data
   const tableRows = appointments.map((apt) => ({
     id: apt.id,
+    _rawApt: apt, // Attach the raw object here
     Date: apt.date,
     Time: apt.time,
     Patient: apt.patientName,
@@ -96,9 +99,25 @@ const NoShowList = () => {
     ),
   }));
 
-  const tableActions = (apt) => [
-    { label: "📞 Rebook", onClick: () => { setSelectedApt(apt); setActionType("rebook"); setNewDate(apt.date); setNewTime(apt.time); } },
-    { label: "⚠️ Escalate", onClick: () => { setSelectedApt(apt); setActionType("escalate"); }, style: { marginLeft: "5px", background: "#ff9999" } },
+  // Actions now receive the mapped row, but extract the original '_rawApt' object
+  const tableActions = (row) => [
+    { 
+      label: "📞 Rebook", 
+      onClick: () => { 
+        setSelectedApt(row._rawApt); 
+        setActionType("rebook"); 
+        setNewDate(row._rawApt.date); 
+        setNewTime(row._rawApt.time); 
+      } 
+    },
+    { 
+      label: "⚠️ Escalate", 
+      onClick: () => { 
+        setSelectedApt(row._rawApt); 
+        setActionType("escalate"); 
+      }, 
+      style: { marginLeft: "5px", background: "#ff9999" } 
+    },
   ];
 
   return (

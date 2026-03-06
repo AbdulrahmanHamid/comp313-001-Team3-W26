@@ -7,6 +7,7 @@ import "../../styles/ClinicDashboard.css";
 const ClinicHome = () => {
   const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
+  const [todayAppts, setTodayAppts] = useState([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
   const [sortAsc, setSortAsc] = useState(false);
   const [noShowCount, setNoShowCount] = useState(0);
@@ -31,8 +32,16 @@ const ClinicHome = () => {
   useEffect(() => {
     const unsubscribe = listenToAllAppointments((allAppts) => {
       const todayStr = new Date().toISOString().split('T')[0];
+      
+      // Calculate No-Shows
       const count = allAppts.filter(a => a.date === todayStr && a.status === "No-Show").length;
       setNoShowCount(count);
+
+      // Save today's appointments to state for the schedule box
+      const todays = allAppts.filter(a => a.date === todayStr);
+      // Sort by time
+      todays.sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+      setTodayAppts(todays);
     });
     return () => unsubscribe();
   }, []);
@@ -40,6 +49,7 @@ const ClinicHome = () => {
   const handleToggleTask = async (id) => {
     await updateTaskStatus(id, "Completed");
   };
+  
   return (
     <div className="clinic-home-container">
       <div className="clinic-cards">
@@ -48,16 +58,29 @@ const ClinicHome = () => {
       </div>
 
       <div className="clinic-content">
-          <div className="schedule-box">
+        <div className="schedule-box">
           <h3>TODAY’S SCHEDULE</h3>
-          <div className="placeholder-content">
-            <span className="placeholder-icon">📅</span>
-            <p><strong>Schedule View</strong></p>
-            <p className="placeholder-subtext">Coming in Release 2.0</p>
-            <button className="clinic-btn-small" onClick={() => navigate('/staff-dashboard/appointments')}>
-                Go to Appointment List
-            </button>
-          </div>
+          
+          {todayAppts.length === 0 ? (
+            <div className="empty-state">
+              <p>No appointments today.</p>
+            </div>
+          ) : (
+            <ul className="task-list widget-list">
+              {todayAppts.map(apt => (
+                <li key={apt.id} className="task-item">
+                  <strong>{apt.time || "No Time"}</strong> — {apt.patientName} <br/>
+                  <small style={{ color: "#666" }}>
+                    {apt.reason} (Dr. {apt.doctorName || "N/A"}) • <span className={`status-badge status-${(apt.status || "pending").toLowerCase().replace(" ", "-")}`}>{apt.status}</span>
+                  </small>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <button className="clinic-btn-small" onClick={() => navigate('/staff-dashboard/appointments')}>
+              Go to Appointment List
+          </button>
         </div>
 
         <div className="tasks-box">

@@ -8,7 +8,9 @@ const AppointmentsPage = () => {
   const [appointments, setAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [filters, setFilters] = useState({ status: "All", date: "All", sort: "Date" });
+
+  // Default date filter is now "Today"
+  const [filters, setFilters] = useState({ status: "All", date: "Today", sort: "Date" });
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -93,8 +95,8 @@ const AppointmentsPage = () => {
       />
 
       {filtered.length === 0 ? (
-        <p style={{ textAlign: "center", padding: "20px", color: "#666" }}>
-          No appointments found
+        <p style={{ textAlign: "center", padding: "20px", color: "#666", fontWeight: "bold", fontSize: "1.1rem" }}>
+          {filters.date === "Today" ? "No appointments today." : "No appointments found."}
         </p>
       ) : (
         <table className="clinic-table">

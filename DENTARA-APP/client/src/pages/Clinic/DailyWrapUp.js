@@ -98,7 +98,7 @@ export default function DailyWrapUpPage() {
       doc.text("No completed tasks.", 14, y);
     } else {
       completed.forEach((t) => {
-        doc.text(`• ${t.title || t.taskName || ""}`.slice(0, 110), 14, y);
+        doc.text(`• ${t.task || ""}`.slice(0, 110), 14, y);
         y += 6;
         if (y > 280) { doc.addPage(); y = 20; }
       });

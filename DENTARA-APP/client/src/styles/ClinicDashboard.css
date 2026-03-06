@@ -1024,8 +1024,6 @@
   color: white;
 }
 .clinic-btn-small {
-  background-color: #fff;
-  border: 1px solid #7e5cfb;
   padding: 6px 14px;
   border-radius: 15px;
   font-weight: 600;
@@ -1034,7 +1032,7 @@
   font-size: 0.9rem;
 }
 .clinic-btn-small:hover {
-  background-color: #e9e6ff;
+  filter: brightness(0.9);
 }
 .doctors-grid {
   display: grid;
@@ -1178,4 +1176,52 @@
   text-decoration: underline;
   cursor: pointer;
   margin-top: 5px;
+}
+
+/********************************************
+  RECALL LIST PAGE (100% No Inline Styles)
+********************************************/
+.recall-filter-bar {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.recall-filter-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.recall-filter-label {
+  font-weight: bold;
+  color: #3c0094;
+}
+.recall-filter-select {
+  padding: 8px 12px;
+  border: 2px solid #c3f23f;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background-color: white;
+  transition: border-color 0.3s;
+  font-weight: bold;
+}
+.recall-filter-select:focus {
+  outline: none;
+  border-color: #7e5cfb;
+}
+.recall-filter-count {
+  color: #666;
+  font-size: 0.9rem;
+}
+.recall-actions {
+  display: flex;
+  gap: 8px;
+}
+.status-contacted {
+  color: #22c55e;
+  font-weight: bold;
+}
+.status-not-contacted {
+  color: #ff4444;
+  font-weight: bold;
 }

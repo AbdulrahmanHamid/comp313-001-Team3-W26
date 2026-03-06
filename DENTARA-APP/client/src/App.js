@@ -34,6 +34,7 @@ import DoctorPatientsPage from "./pages/Clinic/Patients/DoctorPatients";
 import AllPatientsPage from "./pages/Clinic/Patients/AllPatients";
 import PatientDetailsPage from "./pages/Clinic/Patients/PatientDetails";
 import DailyWrapUpPage from './pages/Clinic/DailyWrapUp';
+import RecallList from './pages/Clinic/RecallList';
 
 //manager pages
 import ManagerDashboard from './pages/Manager/ManagerDashboard';
@@ -109,9 +110,9 @@ function App() {
                         <Route path="no-shows" element={<NoShowList />} />
                         <Route path="kpis" element={<KPIsView />} />
                         <Route path="messages" element={<div>Messages (Coming Soon)</div>} />
-                        <Route path="recalls" element={<div>Recalls (Coming Soon)</div>} />
+                        <Route path="recalls" element={<RecallList />} />
                         <Route path="schedule" element={<div>Schedule (Coming Soon)</div>} />
-                         <Route path="wrapup" element={<DailyWrapUpPage />} />
+                        <Route path="wrapup" element={<DailyWrapUpPage />} />
                     </Route>
 
                     {/* Doctor Dashboard  */}

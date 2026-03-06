@@ -97,7 +97,7 @@ function App() {
                         </Route>
 
                         <Route path="tasks" element={<TasksPage />}>
-                            <Route index element={<Navigate to="summary" replace />} />
+                            <Route index element={<Navigate to="list" replace />} />
                             <Route path="summary" element={<TaskSummary />} />
                             <Route path="list" element={<TaskList />} />
                         </Route>

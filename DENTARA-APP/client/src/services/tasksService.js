@@ -1,4 +1,3 @@
-
 import { db } from "../firebase/firebaseConfig";
 import {
   collection,
@@ -50,4 +49,9 @@ export const listenToTasksByDate = (dateStr, callback) => {
     const list = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
     callback(list);
   });
+};
+
+// NEW: Update any task field (used for the "Do this task" button)
+export const updateTask = (id, data) => {
+  return updateDoc(doc(db, "tasks", id), data);
 };

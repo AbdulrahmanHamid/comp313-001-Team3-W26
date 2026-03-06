@@ -20,3 +20,24 @@ export const listenToDoctors = (callback) => {
     callback(list);
   });
 };
+
+// Fetch Staff for the Task Assignment Dropdown
+export const listenToStaff = (callback) => {
+  const q = query(
+    collection(db, "users"),
+    where("role", "==", "staff")
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const list = snapshot.docs.map((d) => {
+      const data = d.data();
+      const fullName = (data.firstName && data.lastName) ? `${data.firstName} ${data.lastName}`: data.email || "Unknown Staff";
+      return {
+        id: d.id,
+        ...data,
+        fullName: fullName
+      };
+    });
+    callback(list);
+  });
+};

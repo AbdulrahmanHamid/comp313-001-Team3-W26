@@ -8,6 +8,7 @@ import {
   addClinicalNote,
   getDoctorInfo
 } from "../../services/doctorService";
+import { getPatientCommunications } from "../../services/communicationsService";
 import "../../styles/DoctorPatients.css";
 
 const DoctorPatientDetails = () => {
@@ -17,6 +18,7 @@ const DoctorPatientDetails = () => {
   const [patient, setPatient] = useState(null);
   const [treatments, setTreatments] = useState([]);
   const [clinicalNotes, setClinicalNotes] = useState([]);
+  const [communications, setCommunications] = useState([]);
   const [newNote, setNewNote] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -51,6 +53,10 @@ const DoctorPatientDetails = () => {
       // Get clinical notes
       const notesData = await getPatientClinicalNotes(patientId);
       setClinicalNotes(notesData);
+
+      // Get communication logs 
+      const commsData = await getPatientCommunications(patientId);
+      setCommunications(commsData);
 
       setLoading(false);
     } catch (error) {
@@ -179,6 +185,37 @@ const DoctorPatientDetails = () => {
                       {treatment.status}
                     </span>
                   </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/*Communication Logs Section */}
+      <div className="patient-details-section">
+        <h3>📞 Communication Log</h3>
+        {communications.length === 0 ? (
+          <p style={{ color: "#999", fontStyle: "italic" }}>
+            No recent calls or messages logged by staff.
+          </p>
+        ) : (
+          <table className="history-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Notes / Summary</th>
+                <th>Logged By</th>
+              </tr>
+            </thead>
+            <tbody>
+              {communications.map((comm) => (
+                <tr key={comm.id}>
+                  <td>{new Date(comm.createdAt).toLocaleDateString()}</td>
+                  <td><strong>{comm.type}</strong></td>
+                  <td>{comm.notes}</td>
+                  <td>{comm.loggedBy}</td>
                 </tr>
               ))}
             </tbody>

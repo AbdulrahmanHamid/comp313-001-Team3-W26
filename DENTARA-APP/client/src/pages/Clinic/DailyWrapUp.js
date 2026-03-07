@@ -2,11 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import jsPDF from "jspdf";
 import { listenToAppointmentsByDate } from "../../services/appointmentsService";
 import { listenToTasksByDate } from "../../services/tasksService";
-
-const todayLocal = () => new Date().toLocaleDateString("en-CA"); 
+import { getTodayLocal } from "../../utils/dateUtils";
+import "../../styles/ClinicDashboard.css";
 
 export default function DailyWrapUpPage() {
-  const [date, setDate] = useState(todayLocal());
+  const [date, setDate] = useState(getTodayLocal());
   const [appointments, setAppointments] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [warning, setWarning] = useState("");
@@ -111,28 +111,52 @@ export default function DailyWrapUpPage() {
     <div className="clinic-content-box">
       <div className="clinic-page-header">
         <h2>🧾 Daily Wrap-Up</h2>
-        <button className="clinic-btn-primary" onClick={exportPdf}>
-          Export PDF
-        </button>
-      </div>
-
-      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-        <label>
-          Date:{" "}
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        </label>
+        <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>
+          <label style={{ fontWeight: "bold", color: "#3c0094" }}>
+            Date:{" "}
+            <input 
+              type="date" 
+              value={date} 
+              onChange={(e) => setDate(e.target.value)} 
+              className="kpi-filter-select"
+            />
+          </label>
+          <button className="clinic-btn-primary" onClick={exportPdf}>
+            Export PDF
+          </button>
+        </div>
       </div>
 
       {warning && (
-        <p style={{ marginTop: 12, padding: 10, background: "#fff3cd", borderRadius: 8 }}>
+        <div className={`alert-bar ${noActivity ? "alert-urgent" : "alert-none"}`} style={{ width: "100%", marginBottom: "20px" }}>
           {warning}
-        </p>
+        </div>
       )}
 
-      <hr />
+      <div className="kpi-grid-top">
+        <div className="kpi-stat-card">
+          <h4>Appointments</h4>
+          <div className="kpi-stat-value text-purple">{appointments.length}</div>
+          <small>Scheduled for {date}</small>
+        </div>
+        
+        <div className="kpi-stat-card">
+          <h4>Tasks Completed</h4>
+          <div className="kpi-stat-value text-green">{completed.length}</div>
+          <small>Closed on this day</small>
+        </div>
 
-      <h3>Appointments</h3>
-      {appointments.length === 0 ? <p>No appointments.</p> : (
+        <div className="kpi-stat-card">
+          <h4>Tasks Pending</h4>
+          <div className="kpi-stat-value text-orange">{pending.length}</div>
+          <small>Still open / active</small>
+        </div>
+      </div>
+
+      <hr className="kpi-divider" />
+
+      <h3>Appointments Breakdown</h3>
+      {appointments.length === 0 ? <p className="empty-state">No appointments.</p> : (
         <table className="clinic-table">
           <thead>
             <tr>
@@ -146,24 +170,39 @@ export default function DailyWrapUpPage() {
                 <td>{a.patientName}</td>
                 <td>{a.doctorName || "N/A"}</td>
                 <td>{a.reason}</td>
-                <td>{a.status}</td>
+                <td>
+                  <span className={`status-badge status-${(a.status || "pending").toLowerCase().replace(" ", "-")}`}>
+                    {a.status}
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
 
-      <h3 style={{ marginTop: 16 }}>Tasks</h3>
+      <h3 style={{ marginTop: 25 }}>Tasks Breakdown</h3>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+        
+        <div className="task-list-section" style={{ backgroundColor: "#fff5f5" }}>
+          <h4 style={{ color: "#ff4444" }}>Pending Tasks</h4>
+          {pending.length === 0 ? <p>No pending tasks.</p> : (
+            <ul className="task-list widget-list">
+              {pending.map(t => <li key={t.id} className="task-item"><strong>{t.task}</strong> <br/><small>{t.assignedTo}</small></li>)}
+            </ul>
+          )}
+        </div>
 
-      <h4>Pending</h4>
-        {pending.length === 0 ? <p>No pending tasks.</p> : (
-        <ul>{pending.map(t => <li key={t.id}>{t.task}</li>)}</ul>
-        )}
+        <div className="task-list-section" style={{ backgroundColor: "#f0fdf4" }}>
+          <h4 style={{ color: "#16a34a" }}>Completed Tasks</h4>
+          {completed.length === 0 ? <p>No completed tasks.</p> : (
+            <ul className="task-list widget-list">
+              {completed.map(t => <li key={t.id} className="task-item"><strong>{t.task}</strong></li>)}
+            </ul>
+          )}
+        </div>
 
-        <h4>Completed</h4>
-        {completed.length === 0 ? <p>No completed tasks.</p> : (
-        <ul>{completed.map(t => <li key={t.id}>{t.task}</li>)}</ul>
-        )}
+      </div>
     </div>
   );
 }

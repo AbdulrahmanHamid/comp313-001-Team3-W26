@@ -35,6 +35,7 @@ import AllPatientsPage from "./pages/Clinic/Patients/AllPatients";
 import PatientDetailsPage from "./pages/Clinic/Patients/PatientDetails";
 import DailyWrapUpPage from './pages/Clinic/DailyWrapUp';
 import RecallList from './pages/Clinic/RecallList';
+import CommunicationsLog from './pages/Clinic/CommunicationsLog';
 
 //manager pages
 import ManagerDashboard from './pages/Manager/ManagerDashboard';
@@ -109,7 +110,7 @@ function App() {
 
                         <Route path="no-shows" element={<NoShowList />} />
                         <Route path="kpis" element={<KPIsView />} />
-                        <Route path="messages" element={<div>Messages (Coming Soon)</div>} />
+                        <Route path="messages" element={<CommunicationsLog />} />
                         <Route path="recalls" element={<RecallList />} />
                         <Route path="schedule" element={<div>Schedule (Coming Soon)</div>} />
                         <Route path="wrapup" element={<DailyWrapUpPage />} />

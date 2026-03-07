@@ -1356,3 +1356,72 @@
   height: 250px;
   margin-top: 20px;
 }
+/* =========================================
+   COMMUNICATIONS LOG & SEARCH FIXES
+========================================= */
+
+/* Custom Searchable Dropdown for Patient Selection */
+.custom-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #c3f23f;
+  border-radius: 6px;
+  margin-top: 4px;
+  padding: 0;
+  list-style: none;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.custom-dropdown li {
+  padding: 12px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid #f8fbe7;
+  font-size: 0.95rem;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.custom-dropdown li:hover {
+  background-color: #e8ffb7;
+  color: #3c0094;
+  font-weight: bold;
+}
+
+.custom-dropdown li.no-results {
+  color: #999;
+  font-style: italic;
+  cursor: default;
+}
+
+.custom-dropdown li.no-results:hover {
+  background-color: white;
+  font-weight: normal;
+  color: #999;
+}
+
+/* Checkbox Alignment Fix */
+.checkbox-align-label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex-direction: row !important;
+  gap: 10px !important;
+  font-weight: bold !important;
+  color: #d97706 !important;
+  cursor: pointer;
+  width: fit-content;
+  margin-top: 8px;
+}
+
+.checkbox-align-label input[type="checkbox"] {
+  width: 20px !important;
+  height: 20px !important;
+  margin: 0 !important;
+  cursor: pointer;
+}

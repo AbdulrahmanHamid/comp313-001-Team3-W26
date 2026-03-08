@@ -1,5 +1,4 @@
-// Firebase initialization file
-// Done by Vaibhav Kalia
+
 
 // Import the functions you need from the SDKs you need
 // These imports let us use Firebase core, Authentication, and Firestore in our app.

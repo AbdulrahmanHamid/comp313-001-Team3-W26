@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
-import { getKPITrends } from "../../services/managerService";
+import { getKPITrends, getFilteredKPITrends } from "../../services/managerService";
+import { listenToDoctors } from "../../services/usersService";
 import Chart from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import "../../styles/ManagerDashboard.css";
@@ -9,10 +10,22 @@ const ManagerKpi = () => {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("Trends");
 
+    // M6-2: Filter state
+    const [doctors, setDoctors] = useState([]);
+    const [selectedDoctor, setSelectedDoctor] = useState("");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+
     const trendChartRef = useRef(null);
     const distChartRef = useRef(null);
     const trendInstance = useRef(null);
     const distInstance = useRef(null);
+
+    // Load doctor list for provider dropdown
+    useEffect(() => {
+        const unsub = listenToDoctors((list) => setDoctors(list));
+        return () => unsub();
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -22,6 +35,33 @@ const ManagerKpi = () => {
         };
         fetchData();
     }, []);
+
+    // M6-2: Apply filters handler
+    const handleApplyFilters = async () => {
+        setLoading(true);
+        const filters = {};
+        if (startDate) filters.startDate = startDate;
+        if (endDate) filters.endDate = endDate;
+        if (selectedDoctor) filters.doctorId = selectedDoctor;
+
+        const result = Object.keys(filters).length > 0
+            ? await getFilteredKPITrends(filters)
+            : await getKPITrends();
+
+        setData(result);
+        setLoading(false);
+    };
+
+    // M6-2: Clear filters handler
+    const handleClearFilters = async () => {
+        setSelectedDoctor("");
+        setStartDate("");
+        setEndDate("");
+        setLoading(true);
+        const result = await getKPITrends();
+        setData(result);
+        setLoading(false);
+    };
 
     useEffect(() => {
         if (!data) return;
@@ -108,6 +148,46 @@ const ManagerKpi = () => {
                 <h2>📈 KPI Drilldowns</h2>
                 <button className="btn-pill btn-purple" onClick={handleExport}>⬇ Export Data (CSV)</button>
             </div>
+
+            {/* M6-2: Filter Bar */}
+            <div className="manage-box" style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center", marginBottom: "16px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "12px", fontWeight: "600", color: "#555" }}>Start Date</label>
+                    <input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid #ccc", fontSize: "14px" }}
+                    />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "12px", fontWeight: "600", color: "#555" }}>End Date</label>
+                    <input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid #ccc", fontSize: "14px" }}
+                    />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "12px", fontWeight: "600", color: "#555" }}>Provider</label>
+                    <select
+                        value={selectedDoctor}
+                        onChange={(e) => setSelectedDoctor(e.target.value)}
+                        style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid #ccc", fontSize: "14px" }}
+                    >
+                        <option value="">All Providers</option>
+                        {doctors.map((doc) => (
+                            <option key={doc.id} value={doc.id}>{doc.fullName}</option>
+                        ))}
+                    </select>
+                </div>
+                <div style={{ display: "flex", gap: "8px", alignSelf: "flex-end" }}>
+                    <button className="btn-pill btn-purple" onClick={handleApplyFilters}>Apply Filters</button>
+                    <button className="btn-pill" onClick={handleClearFilters} style={{ background: "#e0e0e0", color: "#333" }}>Clear</button>
+                </div>
+            </div>
+
             <div className="tabs">
                 <button className={`tab-btn ${activeTab === "Trends" ? "active" : ""}`} onClick={() => setActiveTab("Trends")}>
                     Weekly Trends

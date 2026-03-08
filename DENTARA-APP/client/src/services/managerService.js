@@ -8,7 +8,8 @@ import {
   query,
   orderBy,
   deleteDoc,
-  onSnapshot
+  onSnapshot,
+  where
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -60,6 +61,68 @@ export const getKPITrends = async () => {
     return { statusData: statusCounts, trendData: days, rawData: appointments };
   } catch (error) {
     console.error("Error fetching Trends:", error);
+    return null;
+  }
+};
+
+// M6-2: Filtered KPI Trends (date range + provider)
+export const getFilteredKPITrends = async (filters = {}) => {
+  try {
+    const { startDate, endDate, doctorId } = filters;
+
+    let constraints = [];
+
+    if (startDate) {
+      constraints.push(where("date", ">=", startDate));
+    }
+    if (endDate) {
+      constraints.push(where("date", "<=", endDate));
+    }
+    if (doctorId) {
+      constraints.push(where("doctorId", "==", doctorId));
+    }
+
+    const q = constraints.length > 0
+      ? query(collection(db, "appointments"), ...constraints)
+      : collection(db, "appointments");
+
+    const snapshot = await getDocs(q);
+    const appointments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Status counts
+    const statusCounts = {};
+    appointments.forEach(a => {
+      const s = a.status || "Unknown";
+      statusCounts[s] = (statusCounts[s] || 0) + 1;
+    });
+
+    // Build trend data from actual date range
+    const days = {};
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        days[d.toISOString().split("T")[0]] = 0;
+      }
+    } else {
+      // Default: last 7 days
+      const today = new Date();
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(today.getDate() - i);
+        days[d.toISOString().split("T")[0]] = 0;
+      }
+    }
+
+    appointments.forEach(a => {
+      if (a.date && days.hasOwnProperty(a.date)) {
+        days[a.date]++;
+      }
+    });
+
+    return { statusData: statusCounts, trendData: days, rawData: appointments };
+  } catch (error) {
+    console.error("Error fetching filtered KPI trends:", error);
     return null;
   }
 };

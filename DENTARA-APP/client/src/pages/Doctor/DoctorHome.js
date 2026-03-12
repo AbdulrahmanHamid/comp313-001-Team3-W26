@@ -7,6 +7,7 @@ import '../../styles/DoctorDashboard.css';
 const DoctorHome = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  // State for appointments, alerts, doctor info and stats
   const [appointments, setAppointments] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [doctorName, setDoctorName] = useState('');
@@ -17,7 +18,7 @@ const DoctorHome = () => {
     total: 0
   });
   const [loading, setLoading] = useState(true);
-
+ // Fetch doctor info and listen for real-time updates
   useEffect(() => {
     if (!currentUser) return;
 

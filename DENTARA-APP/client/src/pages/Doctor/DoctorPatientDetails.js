@@ -23,7 +23,7 @@ const DoctorPatientDetails = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [doctorName, setDoctorName] = useState("");
-
+// Fetch patient data and doctor name 
   useEffect(() => {
     fetchPatientData();
     fetchDoctorName();

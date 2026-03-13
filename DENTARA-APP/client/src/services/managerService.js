@@ -70,24 +70,18 @@ export const getFilteredKPITrends = async (filters = {}) => {
   try {
     const { startDate, endDate, doctorId } = filters;
 
-    let constraints = [];
-
-    if (startDate) {
-      constraints.push(where("date", ">=", startDate));
-    }
-    if (endDate) {
-      constraints.push(where("date", "<=", endDate));
-    }
-    if (doctorId) {
-      constraints.push(where("doctorId", "==", doctorId));
-    }
-
-    const q = constraints.length > 0
-      ? query(collection(db, "appointments"), ...constraints)
+    // Only filter by doctorId in Firestore (single field, no composite index needed)
+    // Date filtering is done client-side to avoid index errors
+    const q = doctorId
+      ? query(collection(db, "appointments"), where("doctorId", "==", doctorId))
       : collection(db, "appointments");
 
     const snapshot = await getDocs(q);
-    const appointments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    let appointments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Apply date filters client-side
+    if (startDate) appointments = appointments.filter(a => a.date >= startDate);
+    if (endDate) appointments = appointments.filter(a => a.date <= endDate);
 
     // Status counts
     const statusCounts = {};

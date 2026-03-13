@@ -64,7 +64,7 @@ const ManagerKpi = () => {
     };
 
     useEffect(() => {
-        if (!data) return;
+        if (!data || !data.trendData || !data.statusData) return;
 
         if (activeTab === "Trends" && trendChartRef.current) {
             if (trendInstance.current) trendInstance.current.destroy();
@@ -142,11 +142,15 @@ const ManagerKpi = () => {
 
     if (loading) return <div className="manager-main"><p>Loading Analytics...</p></div>;
 
+    if (!data || !data.statusData || !data.rawData) {
+        return <div className="manager-main"><p>No data available for the selected filters.</p></div>;
+    }
+
     return (
         <div className="manager-page">
             <div className="page-header">
-                <h2>📈 KPI Drilldowns</h2>
-                <button className="btn-pill btn-purple" onClick={handleExport}>⬇ Export Data (CSV)</button>
+                <h2>KPI Drilldowns</h2>
+                <button className="btn-pill btn-purple" onClick={handleExport}>Export Data (CSV)</button>
             </div>
 
             {/* M6-2: Filter Bar */}

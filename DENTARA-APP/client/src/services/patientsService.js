@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 
 const db = getFirestore();
-
+// Listen to real-time updates for all patients
 export const listenToAllPatients = (callback) => {
   const patientsRef = collection(db, "patients");
   const unsubscribe = onSnapshot(patientsRef, (snapshot) => {
@@ -24,7 +24,7 @@ export const listenToAllPatients = (callback) => {
   });
   return unsubscribe;
 };
-
+// Get a single patient by ID
 export const getPatientById = async (patientId) => {
   try {
     const patientRef = doc(db, "patients", patientId);
@@ -38,7 +38,7 @@ export const getPatientById = async (patientId) => {
     return null;
   }
 };
-
+// Get all patients assigned to a specific doctor
 export const getPatientsByDoctor = async (doctorId) => {
   try {
     const patientsRef = collection(db, "patients");
@@ -53,7 +53,7 @@ export const getPatientsByDoctor = async (doctorId) => {
     return [];
   }
 };
-
+// Add a new patient record
 export const addNewPatient = async (patientData) => {
   try {
     const patientsRef = collection(db, "patients");
@@ -67,7 +67,7 @@ export const addNewPatient = async (patientData) => {
     throw error;
   }
 };
-
+// Update an existing patient's data
 export const updatePatient = async (patientId, patientData) => {
   try {
     const patientRef = doc(db, "patients", patientId);
@@ -80,7 +80,7 @@ export const updatePatient = async (patientId, patientData) => {
     throw error;
   }
 };
-
+// Delete a patient record
 export const deletePatient = async (patientId) => {
   try {
     const patientRef = doc(db, "patients", patientId);
@@ -90,7 +90,7 @@ export const deletePatient = async (patientId) => {
     throw error;
   }
 };
-
+// Get all patients (one-time fetch)
 export const getAllPatients = async () => {
   try {
     const patientsRef = collection(db, "patients");

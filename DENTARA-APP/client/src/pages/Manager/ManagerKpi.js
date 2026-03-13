@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { getKPITrends, getFilteredKPITrends } from "../../services/managerService";
+import { listenToFilteredKPITrends } from "../../services/managerService";
 import { listenToDoctors } from "../../services/usersService";
 import Chart from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";
@@ -27,40 +27,27 @@ const ManagerKpi = () => {
         return () => unsub();
     }, []);
 
+    // M6-2: Real-time listener for filtered KPIs
     useEffect(() => {
-        const fetchData = async () => {
-            const result = await getKPITrends();
-            setData(result);
-            setLoading(false);
-        };
-        fetchData();
-    }, []);
-
-    // M6-2: Apply filters handler
-    const handleApplyFilters = async () => {
         setLoading(true);
         const filters = {};
         if (startDate) filters.startDate = startDate;
         if (endDate) filters.endDate = endDate;
         if (selectedDoctor) filters.doctorId = selectedDoctor;
 
-        const result = Object.keys(filters).length > 0
-            ? await getFilteredKPITrends(filters)
-            : await getKPITrends();
-
-        setData(result);
-        setLoading(false);
-    };
+        const unsub = listenToFilteredKPITrends(filters, (result) => {
+            setData(result);
+            setLoading(false);
+        });
+        
+        return () => unsub();
+    }, [startDate, endDate, selectedDoctor]); // Automatically refreshes when filters change
 
     // M6-2: Clear filters handler
-    const handleClearFilters = async () => {
+    const handleClearFilters = () => {
         setSelectedDoctor("");
         setStartDate("");
         setEndDate("");
-        setLoading(true);
-        const result = await getKPITrends();
-        setData(result);
-        setLoading(false);
     };
 
     useEffect(() => {
@@ -74,7 +61,7 @@ const ManagerKpi = () => {
                 data: {
                     labels: Object.keys(data.trendData),
                     datasets: [{
-                        label: "Appointments (Last 7 Days)",
+                        label: "Appointments",
                         data: Object.values(data.trendData),
                         borderColor: "#7c5cce",
                         backgroundColor: "rgba(124, 92, 206, 0.2)",
@@ -100,21 +87,21 @@ const ManagerKpi = () => {
                     }]
                 },
                 options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                datalabels: {
-                    color: "#000",
-                    font: {
-                        weight: "bold",
-                        size: 14
-                    },
-                    formatter: (value) => value, 
-                },
-                legend: {
-                    position: "bottom"
-                }
-            }
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        datalabels: {
+                            color: "#000",
+                            font: {
+                                weight: "bold",
+                                size: 14
+                            },
+                            formatter: (value) => value, 
+                        },
+                        legend: {
+                            position: "bottom"
+                        }
+                    }
                 },
                 plugins: [ChartDataLabels]
             });
@@ -187,14 +174,15 @@ const ManagerKpi = () => {
                     </select>
                 </div>
                 <div style={{ display: "flex", gap: "8px", alignSelf: "flex-end" }}>
-                    <button className="btn-pill btn-purple" onClick={handleApplyFilters}>Apply Filters</button>
-                    <button className="btn-pill" onClick={handleClearFilters} style={{ background: "#e0e0e0", color: "#333" }}>Clear</button>
+                    {/* The Apply button was removed since useEffect handles updates instantly now, 
+                        but keeping clear button to easily wipe the form */}
+                    <button className="btn-pill" onClick={handleClearFilters} style={{ background: "#e0e0e0", color: "#333" }}>Clear Filters</button>
                 </div>
             </div>
 
             <div className="tabs">
                 <button className={`tab-btn ${activeTab === "Trends" ? "active" : ""}`} onClick={() => setActiveTab("Trends")}>
-                    Weekly Trends
+                    Trends (Selected Range)
                 </button>
                 <button className={`tab-btn ${activeTab === "Distribution" ? "active" : ""}`} onClick={() => setActiveTab("Distribution")}>
                     Status Distribution

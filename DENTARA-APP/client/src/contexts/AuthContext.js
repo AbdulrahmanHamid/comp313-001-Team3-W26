@@ -1,11 +1,12 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { 
-  signInWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged 
-} from 'firebase/auth';
-import { auth, db } from '../firebase/firebaseConfig';
-import { doc, getDoc } from 'firebase/firestore';
+// AuthContext.js
+import React, { createContext, useState, useEffect, useContext } from "react";
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
+import { auth, db } from "../firebase/firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
 
 // Create the authentication context
 const AuthContext = createContext();
@@ -24,16 +25,20 @@ export const AuthProvider = ({ children }) => {
   // Login function
   const login = async (email, password) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
       const user = userCredential.user;
-      
+
       // Get user role from Firestore
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const userDoc = await getDoc(doc(db, "users", user.uid));
       if (userDoc.exists()) {
         setUserRole(userDoc.data().role);
         return { success: true, role: userDoc.data().role };
       }
-      return { success: false, error: 'User role not found' };
+      return { success: false, error: "User role not found" };
     } catch (error) {
       return { success: false, error: error.message };
     }
@@ -48,17 +53,17 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
-      
+
       if (user) {
         // Get user role from Firestore
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           setUserRole(userDoc.data().role);
         }
       } else {
         setUserRole(null);
       }
-      
+
       setLoading(false);
     });
 
@@ -69,7 +74,7 @@ export const AuthProvider = ({ children }) => {
     currentUser,
     userRole,
     login,
-    logout
+    logout,
   };
 
   return (

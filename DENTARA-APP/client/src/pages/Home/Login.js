@@ -9,6 +9,7 @@ const Login = () => {
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -69,13 +70,13 @@ const Login = () => {
           <div className="form-group">
             <label>Password</label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               disabled={loading}
             />
-            <span className="eye-icon">👁️</span>
+            <button type="button" className="eye-icon-btn" onClick={() => setShowPassword(s => !s)}>{showPassword ? "Hide" : "Show"}</button>
           </div>
           
           <div className="form-options">
@@ -88,7 +89,7 @@ const Login = () => {
               />
               Remember for 30 days
             </label>
-            <a href="#forgot" className="forgot-password">Forgot Password?</a>
+            <span className="forgot-password-note">Contact your admin to reset your password.</span>
           </div>
           
           <button type="submit" className="btn-login" disabled={loading}>

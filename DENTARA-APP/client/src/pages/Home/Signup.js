@@ -12,6 +12,8 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const navigate = useNavigate();
 
@@ -113,25 +115,29 @@ const Signup = () => {
             <div className="form-group half">
               <label>Password</label>
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
                 disabled={loading}
               />
-              <span className="eye-icon">👁️</span>
+              <button type="button" className="eye-icon-btn" onClick={() => setShowPassword(s => !s)}>
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
             </div>
 
             <div className="form-group half">
               <label>Confirm Password</label>
               <input
-                type="password"
+                type={showConfirm ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm password"
                 disabled={loading}
               />
-              <span className="eye-icon">👁️</span>
+              <button type="button" className="eye-icon-btn" onClick={() => setShowConfirm(s => !s)}>
+                {showConfirm ? 'Hide' : 'Show'}
+              </button>
             </div>
           </div>
 

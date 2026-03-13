@@ -1,7 +1,9 @@
+// DataTable.js
 import React from "react";
 
 const DataTable = ({ columns, rows, actions, emptyMessage }) => {
-  const normalizeKey = (col) => col.toLowerCase().replace(/\s+/g, "").replace(/[-_]/g, "");
+  const normalizeKey = (col) =>
+    col.toLowerCase().replace(/\s+/g, "").replace(/[-_]/g, "");
 
   return (
     <div>
@@ -23,9 +25,7 @@ const DataTable = ({ columns, rows, actions, emptyMessage }) => {
             {rows.map((row) => (
               <tr key={row.id}>
                 {columns.map((col) => (
-                  <td key={`${row.id}-${col}`}>
-                    {row[col] || "-"}
-                  </td>
+                  <td key={`${row.id}-${col}`}>{row[col] || "-"}</td>
                 ))}
                 {actions && (
                   <td>

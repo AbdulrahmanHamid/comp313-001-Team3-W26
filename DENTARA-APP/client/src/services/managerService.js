@@ -1,19 +1,9 @@
 import { db, storage } from "../firebase/firebaseConfig";
-import {
-  collection,
-  getDocs,
-  addDoc,
-  updateDoc,
-  doc,
-  query,
-  orderBy,
-  deleteDoc,
-  onSnapshot,
-  where
-} from "firebase/firestore";
+import { collection, getDocs, addDoc, updateDoc, doc, query, orderBy, deleteDoc, onSnapshot, where } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { formatDateLocal } from "../utils/dateUtils";
 
-   // CLINIC KPIs
+// CLINIC KPIs
 export const getClinicKPIs = async () => {
   try {
     const snapshot = await getDocs(collection(db, "appointments"));
@@ -31,52 +21,17 @@ export const getClinicKPIs = async () => {
   }
 };
 
-// for KPI DRILLDOWNS Charts & Trends
-export const getKPITrends = async () => {
-  try {
-    const snapshot = await getDocs(collection(db, "appointments"));
-    const appointments = snapshot.docs.map(doc => doc.data());
+// M6-2: Filtered KPI Trends (date range + provider) converted to Real-Time
+// Replaces both getKPITrends and getFilteredKPITrends
+export const listenToFilteredKPITrends = (filters = {}, callback) => {
+  const { startDate, endDate, doctorId } = filters;
 
-    const statusCounts = {};
-    appointments.forEach(a => {
-      const s = a.status || "Unknown";
-      statusCounts[s] = (statusCounts[s] || 0) + 1;
-    });
+  // Date filtering is done client-side to avoid index errors
+  const q = doctorId
+    ? query(collection(db, "appointments"), where("doctorId", "==", doctorId))
+    : collection(db, "appointments");
 
-    const days = {};
-    const today = new Date();
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(today.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
-      days[dateStr] = 0;
-    }
-
-    appointments.forEach(a => {
-      if (a.date && days.hasOwnProperty(a.date)) {
-        days[a.date]++;
-      }
-    });
-
-    return { statusData: statusCounts, trendData: days, rawData: appointments };
-  } catch (error) {
-    console.error("Error fetching Trends:", error);
-    return null;
-  }
-};
-
-// M6-2: Filtered KPI Trends (date range + provider)
-export const getFilteredKPITrends = async (filters = {}) => {
-  try {
-    const { startDate, endDate, doctorId } = filters;
-
-    // Only filter by doctorId in Firestore (single field, no composite index needed)
-    // Date filtering is done client-side to avoid index errors
-    const q = doctorId
-      ? query(collection(db, "appointments"), where("doctorId", "==", doctorId))
-      : collection(db, "appointments");
-
-    const snapshot = await getDocs(q);
+  return onSnapshot(q, (snapshot) => {
     let appointments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
     // Apply date filters client-side
@@ -93,10 +48,14 @@ export const getFilteredKPITrends = async (filters = {}) => {
     // Build trend data from actual date range
     const days = {};
     if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
+      // Create local dates to prevent timezone shifting
+      const startParts = startDate.split('-');
+      const endParts = endDate.split('-');
+      const start = new Date(startParts[0], startParts[1] - 1, startParts[2]);
+      const end = new Date(endParts[0], endParts[1] - 1, endParts[2]);
+
       for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        days[d.toISOString().split("T")[0]] = 0;
+        days[formatDateLocal(d)] = 0;
       }
     } else {
       // Default: last 7 days
@@ -104,7 +63,7 @@ export const getFilteredKPITrends = async (filters = {}) => {
       for (let i = 6; i >= 0; i--) {
         const d = new Date();
         d.setDate(today.getDate() - i);
-        days[d.toISOString().split("T")[0]] = 0;
+        days[formatDateLocal(d)] = 0;
       }
     }
 
@@ -114,11 +73,11 @@ export const getFilteredKPITrends = async (filters = {}) => {
       }
     });
 
-    return { statusData: statusCounts, trendData: days, rawData: appointments };
-  } catch (error) {
+    callback({ statusData: statusCounts, trendData: days, rawData: appointments });
+  }, (error) => {
     console.error("Error fetching filtered KPI trends:", error);
-    return null;
-  }
+    callback(null);
+  });
 };
 
 /* ==============================
@@ -150,7 +109,7 @@ export const updateGoal = async (id, updatedData) => {
   } else {
     status = "Active";
   }
-  
+
   await updateDoc(ref, { ...updatedData, status });
 };
 

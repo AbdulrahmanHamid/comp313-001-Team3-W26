@@ -1,3 +1,4 @@
+// FilterBar.js
 import React from "react";
 
 const FilterBar = ({ searchTerm, setSearchTerm, filters, onFilterChange }) => {

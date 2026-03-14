@@ -11,9 +11,12 @@ export default function DailyWrapUpPage() {
   const [tasks, setTasks] = useState([]);
   const [warning, setWarning] = useState("");
 
+  // Listen to appointments and tasks for the selected date
   useEffect(() => {
     const unsubA = listenToAppointmentsByDate(date, setAppointments);
     const unsubT = listenToTasksByDate(date, setTasks);
+
+    // Cleanup listeners when component unmounts
     return () => { unsubA(); unsubT(); };
   }, [date]);
 
@@ -184,7 +187,7 @@ export default function DailyWrapUpPage() {
       <h3 style={{ marginTop: 25 }}>Tasks Breakdown</h3>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
         
-        <div className="task-list-section" style={{ backgroundColor: "#fff5f5" }}>
+        <div className="task-list-section" style={{ backgroundColor: "#fde2f8" }}>
           <h4 style={{ color: "#ff4444" }}>Pending Tasks</h4>
           {pending.length === 0 ? <p>No pending tasks.</p> : (
             <ul className="task-list widget-list">
@@ -194,7 +197,7 @@ export default function DailyWrapUpPage() {
         </div>
 
         <div className="task-list-section" style={{ backgroundColor: "#f0fdf4" }}>
-          <h4 style={{ color: "#16a34a" }}>Completed Tasks</h4>
+          <h4 style={{ color: "#2e9253" }}>Completed Tasks</h4>
           {completed.length === 0 ? <p>No completed tasks.</p> : (
             <ul className="task-list widget-list">
               {completed.map(t => <li key={t.id} className="task-item"><strong>{t.task}</strong></li>)}

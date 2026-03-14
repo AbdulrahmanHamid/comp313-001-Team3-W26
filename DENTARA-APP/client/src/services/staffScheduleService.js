@@ -6,22 +6,23 @@ import {
   doc,
   query,
   where,
-  orderBy,
   onSnapshot,
   getDocs
 } from "firebase/firestore";
 
 // Listen to current staff member's active availability blocks (real-time)
 export const listenToStaffAvailability = (staffId, callback) => {
+  // We sort and filter in Javascript instead!
   const q = query(
     collection(db, "availability"),
-    where("staffId", "==", staffId),
-    where("status", "==", "active"),
-    orderBy("date", "asc")
+    where("staffId", "==", staffId)
   );
 
   return onSnapshot(q, (snapshot) => {
-    const list = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const list = snapshot.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .filter((b) => b.status === "active")
+      .sort((a, b) => a.date.localeCompare(b.date)); // Sort client-side
     callback(list);
   }, (error) => {
     console.error("Error listening to staff availability:", error);
@@ -29,16 +30,15 @@ export const listenToStaffAvailability = (staffId, callback) => {
   });
 };
 
-// Listen to ALL staff availability blocks (for read-only Staff Schedules tab)
+// Listen to ALL staff availability blocks 
 export const listenToAllStaffAvailability = (callback) => {
-  const q = query(
-    collection(db, "availability"),
-    where("status", "==", "active"),
-    orderBy("date", "asc")
-  );
+  const q = collection(db, "availability");
 
   return onSnapshot(q, (snapshot) => {
-    const list = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const list = snapshot.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .filter((b) => b.status === "active")
+      .sort((a, b) => a.date.localeCompare(b.date));
     callback(list);
   }, (error) => {
     console.error("Error listening to all staff availability:", error);
@@ -46,12 +46,30 @@ export const listenToAllStaffAvailability = (callback) => {
   });
 };
 
-// Block a time slot (create new availability block)
+// Block a time slot + CONFLICT CHECK
 export const blockTimeSlot = async (staffId, staffName, blockData) => {
   const { date, startTime, endTime, reason, notes } = blockData;
 
   if (endTime <= startTime) {
     throw new Error("End time must be after start time");
+  }
+
+  //  Check if the doctor has an appointment during this time
+  const aptQuery = query(
+    collection(db, "appointments"),
+    where("doctorId", "==", staffId)
+  );
+  
+  const aptSnap = await getDocs(aptQuery);
+  const existingAppointments = aptSnap.docs
+    .map(d => d.data())
+    .filter(a => a.date === date && (a.status === "Pending" || a.status === "Confirmed" || a.status === "Checked-in"));
+
+  // Verify time overlap
+  for (let apt of existingAppointments) {
+    if (apt.time >= startTime && apt.time < endTime) {
+      throw new Error(`Conflict! You already have an appointment scheduled at ${apt.time} on this date.`);
+    }
   }
 
   const docRef = await addDoc(collection(db, "availability"), {
@@ -83,11 +101,11 @@ export const cancelAvailabilityBlock = async (blockId) => {
 export const getStaffAvailabilityByDate = async (staffId, dateStr) => {
   const q = query(
     collection(db, "availability"),
-    where("staffId", "==", staffId),
-    where("date", "==", dateStr),
-    where("status", "==", "active")
+    where("staffId", "==", staffId)
   );
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return snapshot.docs
+    .map((d) => ({ id: d.id, ...d.data() }))
+    .filter(b => b.status === "active" && b.date === dateStr);
 };

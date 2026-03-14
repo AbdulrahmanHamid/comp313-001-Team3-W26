@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { listenToAllAppointments } from "../../../services/appointmentsService";
 import ManageAppointments from "./ManageAppointments";
@@ -6,7 +7,10 @@ import { getTodayLocal } from "../../../utils/dateUtils";
 import "../../../styles/ClinicDashboard.css";
 
 const AppointmentsPage = () => {
+  // Store all appointments retrieved from the database
   const [appointments, setAppointments] = useState([]);
+
+
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showForm, setShowForm] = useState(false);
   // Default filter set to "Today"
@@ -24,6 +28,7 @@ const AppointmentsPage = () => {
 
   const today = getTodayLocal();
 
+  // Filter by date category
   let filtered = appointments
     .filter((apt) => filters.status === "All" || apt.status === filters.status)
     .filter((apt) => {
@@ -87,6 +92,8 @@ const AppointmentsPage = () => {
         </button>
       </div>
 
+
+ {/* Search and filter component */}
       <FilterBar
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -95,10 +102,11 @@ const AppointmentsPage = () => {
       />
 
       {filtered.length === 0 ? (
-        <p style={{ textAlign: "center", padding: "20px", color: "#666", fontWeight: "bold" }}>
+        <p style={{ textAlign: "center", padding: "21px", color: "#5a5353", fontWeight: "bold" }}>
           {filters.date === "Today" ? "No appointments today." : "No appointments found."}
         </p>
       ) : (
+          /* Appointment table */
         <table className="clinic-table">
           <thead>
             <tr>

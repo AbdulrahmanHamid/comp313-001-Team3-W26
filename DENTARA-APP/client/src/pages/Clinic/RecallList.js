@@ -11,11 +11,13 @@ export default function RecallList() {
   const navigate = useNavigate();
   const db = getFirestore();
 
+  // Listen to patient data from Firestore
   useEffect(() => {
     const unsubscribePatients = listenToAllPatients(setPatients);
     return () => unsubscribePatients();
   }, []);
 
+  // Listen to appointments collection in realtime
   useEffect(() => {
     const unsubscribeAppts = onSnapshot(collection(db, "appointments"), (snapshot) => {
       const apptsList = snapshot.docs.map((doc) => ({
@@ -27,6 +29,8 @@ export default function RecallList() {
     return () => unsubscribeAppts();
   }, [db]);
 
+
+  // Calculate patients who are overdue for recall (more than 6 months)
   const overduePatients = useMemo(() => {
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
@@ -59,7 +63,7 @@ export default function RecallList() {
 
   const displayedPatients = useMemo(() => {
     return overduePatients.filter((p) => {
-      if (filter === "Action Required") return !p.recallContacted;
+      if (filter === "Action Required !") return !p.recallContacted;
       if (filter === "Already Contacted") return p.recallContacted === true;
       return true; 
     });
@@ -69,7 +73,7 @@ export default function RecallList() {
     try {
       await updatePatientRecallStatus(patientId, !currentStatus);
     } catch (error) {
-      alert("Failed to update status. Please try again.");
+      alert("Failed to update status. Please try again :(");
     }
   };
 

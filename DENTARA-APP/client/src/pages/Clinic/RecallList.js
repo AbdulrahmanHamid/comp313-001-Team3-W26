@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getFirestore, collection, onSnapshot } from "firebase/firestore";
 import { listenToAllPatients, updatePatientRecallStatus } from "../../services/patientsService";
+import { createNotification } from "../../services/notificationsService"; 
 
 export default function RecallList() {
   const [patients, setPatients] = useState([]);
@@ -63,7 +64,7 @@ export default function RecallList() {
 
   const displayedPatients = useMemo(() => {
     return overduePatients.filter((p) => {
-      if (filter === "Action Required !") return !p.recallContacted;
+      if (filter === "Action Required") return !p.recallContacted;
       if (filter === "Already Contacted") return p.recallContacted === true;
       return true; 
     });
@@ -73,14 +74,25 @@ export default function RecallList() {
     try {
       await updatePatientRecallStatus(patientId, !currentStatus);
     } catch (error) {
-      alert("Failed to update status. Please try again :(");
+      alert("Failed to update status. Please try again.");
     }
+  };
+
+  // AC TEST 4: Trigger a follow-up reminder from the Recall List
+  const handleTriggerFollowUp = async (patient) => {
+    await createNotification({
+        title: "Follow-up Reminder",
+        message: `Reminder: Please call ${patient.name || patient.patientName || patient.firstName} regarding their overdue recall.`,
+        link: `/staff-dashboard/patients/details/${patient.id}`,
+        type: "reminder"
+    });
+    alert("Follow-up reminder notification created! Check your Alerts menu.");
   };
 
   return (
     <div className="clinic-content-box">
       <div className="clinic-page-header">
-        <h2>📞 Patient Recall List (&gt; 6 Months Overdue)</h2>
+        <h2>Patient Recall List (6 Months Overdue)</h2>
       </div>
 
       <div className="recall-filter-bar">
@@ -101,11 +113,11 @@ export default function RecallList() {
         </div>
       </div>
 
-      <hr />
+      <hr className="kpi-divider" />
 
       {displayedPatients.length === 0 ? (
         <div className="empty-state">
-          <h3>🎉 All caught up!</h3>
+          <h3>All caught up!</h3>
           <p>No patients match the "{filter}" criteria right now.</p>
         </div>
       ) : (
@@ -135,7 +147,7 @@ export default function RecallList() {
                   </span>
                 </td>
                 <td>
-                  <div className="recall-actions">
+                  <div className="recall-actions" style={{ display: "flex", gap: "8px" }}>
                     <button 
                       className="clinic-btn-secondary clinic-btn-small"
                       onClick={() => navigate(`/staff-dashboard/patients/details/${p.id}`)}
@@ -149,6 +161,17 @@ export default function RecallList() {
                     >
                       {p.recallContacted ? "Undo (Unmark)" : "Mark Contacted"}
                     </button>
+
+                    {/* NEW BUTTON: Trigger Notification */}
+                    {!p.recallContacted && (
+                      <button 
+                        className="clinic-btn-secondary clinic-btn-small"
+                        style={{ backgroundColor: "#ff9999", color: "#7f1d1d", border: "none" }}
+                        onClick={() => handleTriggerFollowUp(p)}
+                      >
+                        Remind Later
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

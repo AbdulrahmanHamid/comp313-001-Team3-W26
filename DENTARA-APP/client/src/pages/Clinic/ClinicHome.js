@@ -4,16 +4,43 @@ import { listenToAllAppointments } from "../../services/appointmentsService";
 import { useNavigate } from "react-router-dom";
 import { getTodayLocal } from "../../utils/dateUtils";
 import { useAuth } from "../../contexts/AuthContext";
+import { db } from "../../firebase/firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
 import "../../styles/ClinicDashboard.css";
 
 const ClinicHome = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  
+  // State for the staff member's real name
+  const [staffName, setStaffName] = useState("");
+  
   const [tasks, setTasks] = useState([]);
   const [todayAppts, setTodayAppts] = useState([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
   const [sortAsc, setSortAsc] = useState(false);
   const [noShowCount, setNoShowCount] = useState(0);
+
+  // Fetch the user's actual name from Firestore instead of just their email
+  useEffect(() => {
+    if (!currentUser) return;
+    const fetchName = async () => {
+      try {
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          const fullName = (data.firstName && data.lastName)
+            ? `${data.firstName} ${data.lastName}`
+            : data.email || "Staff Member";
+          setStaffName(fullName);
+        }
+      } catch (error) {
+        console.error("Error fetching staff name:", error);
+        setStaffName(currentUser.email); // Fallback if database fails
+      }
+    };
+    fetchName();
+  }, [currentUser]);
 
   useEffect(() => {
     const unsubscribe = listenToTasks((allTasks) => {
@@ -53,7 +80,8 @@ const ClinicHome = () => {
   return (
     <div className="clinic-home-container">
       
-      <h2 style={{ color: "#3c0094", margin: "0 0 20px 0" }}>Welcome back, {currentUser?.email}</h2>
+      {/* Display the fetched real name */}
+      <h2 style={{ color: "#3c0094", margin: "0 0 20px 0" }}>Welcome back, {staffName || "Loading..."}</h2>
 
       <div className="clinic-content">
         <div className="schedule-box">

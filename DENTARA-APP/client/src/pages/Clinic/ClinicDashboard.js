@@ -50,9 +50,8 @@ const ClinicDashboard = () => {
     return (
         <div className="clinic-layout">
             <header className="clinic-header" style={{ position: "relative" }}>
-                <div className="clinic-logo">Dentara <span style={{ fontSize: '1rem', fontWeight: 'normal' }}>| Staff Portal</span></div>
+                <div className="clinic-logo"><h1>Dentara <span style={{ fontSize: '2rem', fontWeight: 'normal' }}>| Staff Portal</span> </h1></div>
                 <div className="clinic-header-buttons">
-                    
                     {/* NOTIFICATION BUTTON */}
                     <div style={{ position: "relative", cursor: "pointer", marginRight: "15px", display: "flex", alignItems: "center" }} onClick={() => setShowNotifPanel(!showNotifPanel)}>
                         <span style={{ fontSize: "1rem", fontWeight: "bold", color: "#3c0094", backgroundColor: "#e9e6ff", padding: "8px 18px", borderRadius: "25px", border: "2px solid #3c0094" }}>

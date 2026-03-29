@@ -1179,7 +1179,7 @@
 }
 
 /********************************************
-  RECALL LIST PAGE (100% No Inline Styles)
+  RECALL LIST PAGE
 ********************************************/
 .recall-filter-bar {
   margin-bottom: 20px;
@@ -1307,18 +1307,17 @@
   font-weight: 500;
 }
 
-/* Custom Text Colors for Impact */
 .text-purple { color: #3c0094; }
 .text-green { color: #16a34a; }
 .text-orange { color: #d97706; }
 
-/* CHARTS GRID (Fixed layout with box-sizing to prevent overflow) */
+/* CHARTS GRID */
 .kpi-charts-grid {
   display: flex;
   flex-direction: column;
   gap: 20px;
   width: 100%;
-  box-sizing: border-box; /* Prevent padding from adding to width */
+  box-sizing: border-box; 
 }
 
 .kpi-chart-box {
@@ -1330,9 +1329,9 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  box-sizing: border-box; /* Crucial for preventing overflow */
-  overflow: hidden; /* Contains the canvas if it tries to spill */
-  min-width: 0; /* Prevents flex children from stretching past constraints */
+  box-sizing: border-box; 
+  overflow: hidden; 
+  min-width: 0; 
 }
 
 .kpi-chart-box h3 {
@@ -1345,7 +1344,7 @@
 .chart-wrapper {
   position: relative;
   width: 100%;
-  max-width: 100%; /* Ensure it doesn't exceed parent */
+  max-width: 100%; 
 }
 
 .line-chart {
@@ -1356,9 +1355,6 @@
   height: 250px;
   margin-top: 20px;
 }
-/* =========================================
-   COMMUNICATIONS LOG & SEARCH FIXES
-========================================= */
 
 /* Custom Searchable Dropdown for Patient Selection */
 .custom-dropdown {
@@ -1425,9 +1421,8 @@
   margin: 0 !important;
   cursor: pointer;
 }
-/* =========================================
-   CALENDAR UI (STAFF SCHEDULE)
-========================================= */
+
+/* CALENDAR UI (STAFF SCHEDULE) */
 .calendar-container {
   background: white;
   padding: 20px;
@@ -1505,4 +1500,74 @@
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 600;
+}
+
+/* =========================================
+   NOTIFICATION PANEL STYLES
+========================================= */
+.notif-badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background-color: #ff4444;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  border: 2px solid white;
+}
+
+.notif-panel {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  width: 320px;
+  background: white;
+  border: 2px solid #c3f23f;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+}
+
+.notif-list {
+  max-height: 350px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.notif-item {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.notif-item:last-child {
+  border-bottom: none;
+}
+
+.notif-item strong {
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.notif-item p {
+  margin: 0;
+  color: #666;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.system-alert {
+  background-color: #fff5f5;
+  border-left: 4px solid #ff4444;
+}
+
+.system-alert strong {
+  color: #cc0000;
 }

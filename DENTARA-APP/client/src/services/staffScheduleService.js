@@ -51,10 +51,25 @@ export const blockTimeSlot = async (staffId, staffName, blockData) => {
   const { date, startTime, endTime, reason, notes } = blockData;
 
   if (endTime <= startTime) {
-    throw new Error("End time must be after start time");
+    throw new Error("End time must be after start time.");
   }
 
-  //  Check if the doctor has an appointment during this time
+  // Check for overlapping EXISTING AVAILABILITY BLOCKS
+  const blockQuery = query(
+    collection(db, "availability"),
+    where("staffId", "==", staffId)
+  );
+  
+  const blockSnap = await getDocs(blockQuery);
+  const existingBlocks = blockSnap.docs
+    .map(d => d.data())
+    .filter(b => b.status === "active" && b.date === date);
+
+  for (let block of existingBlocks) {
+    if (startTime < block.endTime && block.startTime < endTime) {
+      throw new Error(`Conflict! You already blocked off time from ${block.startTime} to ${block.endTime} on this date.`);
+    }
+  }
   const aptQuery = query(
     collection(db, "appointments"),
     where("doctorId", "==", staffId)
@@ -65,13 +80,14 @@ export const blockTimeSlot = async (staffId, staffName, blockData) => {
     .map(d => d.data())
     .filter(a => a.date === date && (a.status === "Pending" || a.status === "Confirmed" || a.status === "Checked-in"));
 
-  // Verify time overlap
+  // Verify time overlap for appointments
   for (let apt of existingAppointments) {
     if (apt.time >= startTime && apt.time < endTime) {
-      throw new Error(`Conflict! You already have an appointment scheduled at ${apt.time} on this date.`);
+      throw new Error(`Conflict! You already have a patient appointment scheduled at ${apt.time} on this date.`);
     }
   }
 
+  // If it passes both conflict checks, save the block!
   const docRef = await addDoc(collection(db, "availability"), {
     staffId,
     staffName,

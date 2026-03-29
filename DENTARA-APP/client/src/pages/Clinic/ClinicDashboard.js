@@ -1,136 +1,144 @@
-import React from "react";
-import { NavLink, useNavigate, Outlet } from "react-router-dom"; // React Router tools for navigation and nested routes
-import { useAuth } from "../../contexts/AuthContext"; // Custom authentication context
-import {
-  FiHome,
-  FiClipboard,
-  FiPhoneCall,
-  FiLogOut,
-  FiList,
-  FiCalendar,
-  FiUsers,
-} from "react-icons/fi"; // Feather icons used for sidebar menu
-import "../../styles/ClinicDashboard.css"; // Dashboard css
+import React, { useState, useEffect } from "react";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { listenToAllPatients } from "../../services/patientsService";
+import { listenToActiveNotifications, markNotificationRead } from "../../services/notificationsService";
+import "../../styles/ClinicDashboard.css";
 
-// Main layout component for the Clinic Staff Dashboard
 const ClinicDashboard = () => {
+    const { logout } = useAuth();
+    const location = useLocation();
+    const navigate = useNavigate();
 
-  // Get logout function from authentication context
-  const { logout } = useAuth();
+    // Notification States
+    const [showNotifPanel, setShowNotifPanel] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [overdueCount, setOverdueCount] = useState(0);
 
-  // Hook used for programmatic navigation
-  const navigate = useNavigate();
+    // Load active notifications and overdue patients (AC Test 1)
+    useEffect(() => {
+        const unsubNotifs = listenToActiveNotifications(setNotifications);
 
-  return (
-    <div className="clinic-layout">
-      
-      {/* ===== Header Section ===== */}
-      <header className="clinic-header">
-        <h1>CLINIC DASHBOARD</h1>
+        const unsubPatients = listenToAllPatients((patients) => {
+            const today = new Date();
+            const overdue = patients.filter(p => {
+                if (!p.lastVisit) return false;
+                const lastVisit = new Date(p.lastVisit);
+                const monthsDiff = (today.getFullYear() - lastVisit.getFullYear()) * 12 + (today.getMonth() - lastVisit.getMonth());
+                return monthsDiff > 6 && (p.status !== "Contacted");
+            });
+            setOverdueCount(overdue.length);
+        });
 
-        {/* Header action buttons for quick access */}
-        <div className="clinic-header-buttons">
+        return () => {
+            unsubNotifs();
+            unsubPatients();
+        };
+    }, []);
 
-          {/* Navigate to KPI tiles page */}
-          <button className="kpi-btn" onClick={() => navigate("kpis")}>
-            KPI Tiles
-          </button>
+    const totalAlerts = notifications.length + (overdueCount > 0 ? 1 : 0);
 
-          {/* Navigate to Daily Wrap-Up page */}
-          <button
-            className="wrapup-btn"
-            onClick={() => navigate("wrapup")}
-          >
-            Daily Wrap-Up
-          </button>
+    const handleLogout = async () => {
+        try {
+            await logout();
+            navigate('/login');
+        } catch (error) {
+            console.error("Failed to log out", error);
+        }
+    };
 
+    return (
+        <div className="clinic-layout">
+            <header className="clinic-header" style={{ position: "relative" }}>
+                <div className="clinic-logo"><h1>Dentara <span style={{ fontSize: '2rem', fontWeight: 'normal' }}>| Staff Portal</span> </h1></div>
+                <div className="clinic-header-buttons">
+                    {/* NOTIFICATION BUTTON */}
+                    <div style={{ position: "relative", cursor: "pointer", marginRight: "15px", display: "flex", alignItems: "center" }} onClick={() => setShowNotifPanel(!showNotifPanel)}>
+                        <span style={{ fontSize: "1rem", fontWeight: "bold", color: "#3c0094", backgroundColor: "#e9e6ff", padding: "8px 18px", borderRadius: "25px", border: "2px solid #3c0094" }}>
+                            Alerts
+                        </span>
+                        {totalAlerts > 0 && (
+                            <span className="notif-badge">{totalAlerts}</span>
+                        )}
+                    </div>
+
+                    <button className={`kpi-btn ${location.pathname.includes('/kpis') ? 'active' : ''}`} onClick={() => navigate('/staff-dashboard/kpis')}>
+                        KPIs
+                    </button>
+                    <button className={`wrapup-btn ${location.pathname.includes('/wrapup') ? 'active' : ''}`} onClick={() => navigate('/staff-dashboard/wrapup')}>
+                        Daily Wrap-up
+                    </button>
+                </div>
+
+                {/* NOTIFICATION DROPDOWN PANEL */}
+                {showNotifPanel && (
+                    <div className="notif-panel">
+                        <div style={{ padding: "15px", borderBottom: "2px solid #c3f23f", background: "#f8fbe7", borderRadius: "10px 10px 0 0" }}>
+                            <h4 style={{ margin: 0, color: "#3c0094" }}>Notifications</h4>
+                        </div>
+                        
+                        <div className="notif-list">
+                            {totalAlerts === 0 ? (
+                                <p style={{ padding: "15px", textAlign: "center", color: "#888" }}>No new notifications.</p>
+                            ) : (
+                                <>
+                                    {/* System Alert for Overdue Patients (AC Test 1) */}
+                                    {overdueCount > 0 && (
+                                        <div className="notif-item system-alert">
+                                            <strong>System Alert</strong>
+                                            <p>{overdueCount} patient(s) are overdue for their 6-month recall.</p>
+                                            <button className="clinic-btn-small" onClick={() => { navigate('/staff-dashboard/recalls'); setShowNotifPanel(false); }}>
+                                                View Recall List
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {/* Custom Follow-up Reminders (AC Test 4) */}
+                                    {notifications.map(notif => (
+                                        <div key={notif.id} className="notif-item">
+                                            <strong>{notif.title}</strong>
+                                            <p>{notif.message}</p>
+                                            <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
+                                                <button className="clinic-btn-small" style={{ background: "#7e5cfb", color: "white" }} onClick={() => { navigate(notif.link); setShowNotifPanel(false); }}>
+                                                    View Details
+                                                </button>
+                                                {/* Mark as Read (AC Test 3) */}
+                                                <button className="clinic-btn-small" style={{ background: "#e0e0e0" }} onClick={() => markNotificationRead(notif.id)}>
+                                                    Mark Read
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </header>
+
+            <div className="clinic-body">
+                <nav className="clinic-sidebar">
+                    <ul>
+                        <li><Link to="/staff-dashboard/home" className={location.pathname.includes('/home') ? 'active' : ''}>Dashboard</Link></li>
+                        <li><Link to="/staff-dashboard/appointments" className={location.pathname.includes('/appointments') ? 'active' : ''}>Appointments</Link></li>
+                        <li><Link to="/staff-dashboard/tasks" className={location.pathname.includes('/tasks') ? 'active' : ''}>Tasks</Link></li>
+                        <li><Link to="/staff-dashboard/patients" className={location.pathname.includes('/patients') ? 'active' : ''}>Patients</Link></li>
+                        <li><Link to="/staff-dashboard/no-shows" className={location.pathname.includes('/no-shows') ? 'active' : ''}>No-Shows</Link></li>
+                        <li><Link to="/staff-dashboard/messages" className={location.pathname.includes('/messages') ? 'active' : ''}>Call & Message Log</Link></li>
+                        <li><Link to="/staff-dashboard/recalls" className={location.pathname.includes('/recalls') ? 'active' : ''}>Recall List</Link></li>
+                        <li><Link to="/staff-dashboard/schedule" className={location.pathname.includes('/schedule') ? 'active' : ''}>Staff Schedule</Link></li>
+                    </ul>
+                    <div className="logout-container">
+                        <button onClick={handleLogout} className="signout-btn">Sign Out</button>
+                    </div>
+                </nav>
+
+                <main className="clinic-main">
+                    <Outlet />
+                </main>
+            </div>
         </div>
-      </header>
-
-      <div className="clinic-body">
-
-        {/* ===== Sidebar Navigation ===== */}
-        <aside className="clinic-sidebar">
-          <nav>
-            <ul>
-
-              {/* Dashboard home page */}
-              <li>
-                <NavLink to="/staff-dashboard/home">
-                  <FiHome /> Home
-                </NavLink>
-              </li>
-
-              {/* Appointment management page */}
-              <li>
-                <NavLink to="/staff-dashboard/appointments">
-                  <FiCalendar /> Appointments
-                </NavLink>
-              </li>
-
-              {/* Task management page */}
-              <li>
-                <NavLink to="/staff-dashboard/tasks">
-                  <FiClipboard /> Tasks
-                </NavLink>
-              </li>
-
-              {/* Patient list and patient information */}
-              <li>
-                <NavLink to="/staff-dashboard/patients">
-                  <FiUsers /> Patients
-                </NavLink>
-              </li>
-
-              {/* Patient recall reminders */}
-              <li>
-                <NavLink to="/staff-dashboard/recalls">
-                  <FiList /> Recalls
-                </NavLink>
-              </li>
-
-              {/* Track patients who missed appointments */}
-              <li>
-                <NavLink to="/staff-dashboard/no-shows">
-                  <FiList /> No-shows
-                </NavLink>
-              </li>
-
-              {/* Communication module (calls & messages) */}
-              <li>
-                <NavLink to="/staff-dashboard/messages">
-                  <FiPhoneCall /> Call & Message
-                </NavLink>
-              </li>
-
-              {/* Staff scheduling view */}
-              <li>
-                <NavLink to="/staff-dashboard/schedule">
-                  <FiCalendar /> Schedule
-                </NavLink>
-              </li>
-
-            </ul>
-          </nav>
-
-          {/* ===== Logout Section ===== */}
-          <div className="logout-container">
-            <button className="signout-btn" onClick={logout}>
-              <FiLogOut className="logout-icon" />
-              Sign Out
-            </button>
-          </div>
-        </aside>
-
-        {/* ===== Main Content Area ===== */}
-        {/* Outlet renders nested routes like Home, Appointments, Tasks etc. */}
-        <main className="clinic-main">
-          <Outlet />
-        </main>
-
-      </div>
-    </div>
-  );
+    );
 };
 
 export default ClinicDashboard;

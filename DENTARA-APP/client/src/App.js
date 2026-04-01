@@ -45,6 +45,7 @@ import ManagerAlerts from './pages/Manager/ManagerAlerts';
 import DataCenter from './pages/Manager/DataCenter';
 import ManagerKpi from './pages/Manager/ManagerKpi';
 import ManagerGoals from './pages/Manager/ManagerGoals';
+import AIChatBotPage from './pages/Manager/AIChatBotPage';
 
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -149,6 +150,7 @@ function App() {
                         <Route path="dataCenter" element={<DataCenter />} />
                         <Route path="managerKpi" element={<ManagerKpi/>} />
                         <Route path="goals" element={<ManagerGoals/>} />
+                        <Route path="AIChatBot" element={<AIChatBotPage />} />
                     </Route>
 
                 </Routes>

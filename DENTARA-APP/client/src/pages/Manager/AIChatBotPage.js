@@ -1,3 +1,6 @@
+
+// export default AIChatBotPage;
+
 import React, { useEffect, useState } from "react";
 import AIChatbot from "./AIChatBot";
 import { listenToFilteredKPITrends } from "../../services/managerService";
@@ -10,7 +13,9 @@ const AIChatBotPage = () => {
       setData(result);
     });
 
-    return () => unsub();
+    return () => {
+      if (typeof unsub === "function") unsub();
+    };
   }, []);
 
   return (

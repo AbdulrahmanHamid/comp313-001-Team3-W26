@@ -1,79 +1,88 @@
-// client/src/services/aiService.js
 
-// Retrieve the API key from the environment variables
 const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
 
-// Use the lightweight, fast gemini-1.5-flash model via standard REST API
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
-// BASE CONTEXT: This makes the AI "App-Specific" to Dentara
+// const DENTARA_SYSTEM_CONTEXT = `
+// You are the Dentara Enterprise AI Assistant. Your job is to help dental clinic managers, doctors, and staff analyze operational data, manage scheduling, and review patient information.
+// You must always maintain a professional, clinical tone.
+// Do not use markdown formatting like bolding or bullet points unless specifically requested. Keep the response clean and plain text.
+// Never invent patient data. Base your answers strictly on the context provided to you.
+// If context is missing, say that clearly.
+// `;
 const DENTARA_SYSTEM_CONTEXT = `
-You are the Dentara Enterprise AI Assistant. Your job is to help dental clinic managers, doctors, and staff analyze operational data, manage scheduling, and review patient information. 
-- You must always maintain a professional, clinical tone.
-- Do not use markdown formatting like bolding or bullet points unless specifically requested, keep it clean plain text.
-- Never invent patient data. Base your answers strictly on the context provided to you.
+You are the Dentara Enterprise AI Assistant.
+
+Your role is to help clinic managers analyze appointments, trends, and performance.
+
+Rules:
+- Always complete your answer fully. Do not stop mid-sentence.
+- Provide clear and structured responses in plain text.
+- Start with a direct answer, then give brief supporting details.
+- If counts or data exist, mention them clearly.
+- If trend data is incomplete, explicitly say: "Trend data is limited or incomplete."
+- Do NOT invent data.
+- If data is missing, clearly say so.
+
+Tone:
+- Professional and concise
+- Manager-focused insights
+`;
+export const generateAIResponse = async (userPrompt, dataContext = "") => {
+  if (!GEMINI_API_KEY) {
+    console.error("Gemini API key is missing from .env file.");
+    return "Error: AI configuration is missing. Please check the .env file.";
+  }
+
+  const engineeredPrompt = `
+${DENTARA_SYSTEM_CONTEXT}
+
+CURRENT CLINIC DATA CONTEXT:
+${dataContext}
+
+USER QUESTION:
+${userPrompt}
 `;
 
-/**
- * Sends a prompt to the Google Gemini API.
- * * @param {string} userPrompt - The specific question or request from the user.
- * @param {string} dataContext - The real-time clinic data (e.g., tasks, KPIs) fed from Firestore.
- * @returns {Promise<string>} - The AI's generated text response.
- */
-export const generateAIResponse = async (userPrompt, dataContext = "") => {
-    if (!GEMINI_API_KEY) {
-        console.error("Gemini API key is missing from .env file.");
-        return "Error: AI configuration is missing. Please check the .env file.";
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: engineeredPrompt }]
+          }
+        ],
+        generationConfig: {
+          maxOutputTokens: 600,
+          temperature: 0.2
+        }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
     }
 
-    // Combine the app identity, the real-time data, and the user's question
-    const engineeredPrompt = `
-        ${DENTARA_SYSTEM_CONTEXT}
-        
-        CURRENT CLINIC DATA CONTEXT:
-        ${dataContext}
-        
-        USER QUESTION:
-        ${userPrompt}
-    `;
+    const data = await response.json();
 
-    try {
-        const response = await fetch(API_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                contents: [
-                    {
-                        role: "user",
-                        parts: [{ text: engineeredPrompt }]
-                    }
-                ],
-                generationConfig: {
-                    // LIMIT CONTROL: Restricts output to 250 tokens (~150 words) to prevent quota exhaustion and high bills
-                    maxOutputTokens: 250,
-                    // TEMPERATURE: Set to 0.2 (low) so the AI is highly factual and deterministic, rather than overly creative
-                    temperature: 0.2,
-                }
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        
-        // Extract the generated text from the standard Gemini JSON response structure
-        if (data.candidates && data.candidates.length > 0) {
-            return data.candidates[0].content.parts[0].text;
-        } else {
-            return "No response generated by the AI.";
-        }
-
-    } catch (error) {
-        console.error("Error communicating with Gemini API:", error);
-        return "Sorry, I am having trouble connecting to the Dentara AI service right now. Please try again later.";
+    if (
+      data.candidates &&
+      data.candidates.length > 0 &&
+      data.candidates[0].content &&
+      data.candidates[0].content.parts &&
+      data.candidates[0].content.parts.length > 0
+    ) {
+      return data.candidates[0].content.parts[0].text;
     }
+
+    return "No response generated by the AI.";
+  } catch (error) {
+    console.error("Error communicating with Gemini API:", error);
+    return "Sorry, I am having trouble connecting to the Dentara AI service right now. Please try again later.";
+  }
 };

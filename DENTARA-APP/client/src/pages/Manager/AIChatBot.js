@@ -1,12 +1,25 @@
+
+// export default AIChatbot;
+
 import React, { useMemo, useState } from "react";
 import { generateAIResponse } from "../../services/aiService";
+//import "./AIChatbot.css";
+
+const SUGGESTED_QUESTIONS = [
+  "What is the appointment trend in the selected period?",
+  "How are appointment statuses distributed?",
+  "Which provider has the highest appointment volume?",
+  "Summarize provider performance.",
+  "Are there any operational concerns in the current data?",
+  "What insights can you give from this dashboard?"
+];
 
 const AIChatbot = ({ dashboardData, selectedDoctor, startDate, endDate }) => {
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      text: "Hello. I can answer questions about the dashboard data, such as appointment trends, status breakdowns, and provider activity."
+      text: "Hello. I can answer questions about appointments, performance, trends, status breakdowns, and provider activity. You can click a suggested question or type your own."
     }
   ]);
   const [loading, setLoading] = useState(false);
@@ -22,6 +35,7 @@ No dashboard data is currently available.
 Instructions:
 - Answer only from the provided context.
 - If data is missing, clearly say that more dashboard data is needed.
+- Keep the answer short and professional.
 `;
     }
 
@@ -74,6 +88,7 @@ Instructions:
 - If the data is not enough, say so clearly.
 - Keep answers concise and useful for a manager.
 - Highlight counts, trends, comparisons, and possible operational insights.
+- Do not invent data.
 `;
     }
 
@@ -91,19 +106,41 @@ Instructions:
 `;
   }, [dashboardData, selectedDoctor, startDate, endDate]);
 
-  const handleAsk = async () => {
-    if (!question.trim()) return;
+  const askQuestion = async (inputQuestion) => {
+    if (!inputQuestion.trim() || loading) return;
 
-    const userMessage = { role: "user", text: question };
+    const userMessage = { role: "user", text: inputQuestion };
     setMessages((prev) => [...prev, userMessage]);
     setLoading(true);
 
-    const response = await generateAIResponse(question, dataContext);
+    try {
+      const response = await generateAIResponse(inputQuestion, dataContext);
 
-    setMessages((prev) => [...prev, { role: "assistant", text: response }]);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", text: response || "No response generated." }
+      ]);
+    } catch (error) {
+      console.error("Error asking AI:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text: "Sorry, I could not process your request right now."
+        }
+      ]);
+    } finally {
+      setQuestion("");
+      setLoading(false);
+    }
+  };
 
-    setQuestion("");
-    setLoading(false);
+  const handleAsk = () => {
+    askQuestion(question);
+  };
+
+  const handleSuggestedQuestion = (q) => {
+    askQuestion(q);
   };
 
   return (
@@ -112,26 +149,48 @@ Instructions:
         <h3>AI Dashboard Assistant</h3>
       </div>
 
+      <div className="ai-chatbot-suggestions">
+        {SUGGESTED_QUESTIONS.map((q, index) => (
+          <button
+            key={index}
+            type="button"
+            className="suggestion-btn"
+            onClick={() => handleSuggestedQuestion(q)}
+            disabled={loading}
+          >
+            {q}
+          </button>
+        ))}
+      </div>
+
       <div className="ai-chatbot-messages">
         {messages.map((msg, index) => (
           <div key={index} className={`ai-message ${msg.role}`}>
             {msg.text}
           </div>
         ))}
+
         {loading && (
-          <div className="ai-message assistant">Analyzing dashboard data...</div>
+          <div className="ai-message assistant typing">
+            <div className="typing-bubble">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
         )}
       </div>
 
       <div className="ai-chatbot-input">
         <input
           type="text"
-          placeholder="Ask about trends, status, provider performance..."
+          placeholder="Ask about appointments, trends, performance..."
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAsk()}
+          disabled={loading}
         />
-        <button onClick={handleAsk} disabled={loading}>
+        <button onClick={handleAsk} disabled={loading || !question.trim()}>
           Ask
         </button>
       </div>

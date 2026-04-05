@@ -5,6 +5,7 @@ import { FiLogOut, FiHome, FiCalendar, FiUsers, FiDatabase, FiAlertTriangle,FiTa
 
 import "../../styles/ManagerDashboard.css";
 
+
 const ManagerDashboard = () => {
   const { logout } = useAuth();
 
@@ -46,6 +47,12 @@ const ManagerDashboard = () => {
               <li>
                 <NavLink to="/manager-dashboard/managerKpi" className="nav-link">
                   <FiCalendar className="nav-icon" /> KPI DrillDowns
+                </NavLink>
+              </li>
+
+              <li>
+                <NavLink to="/manager-dashboard/AIChatBot" className="nav-link">
+                  <FiCalendar className="nav-icon" /> AI Assistant
                 </NavLink>
               </li>
 

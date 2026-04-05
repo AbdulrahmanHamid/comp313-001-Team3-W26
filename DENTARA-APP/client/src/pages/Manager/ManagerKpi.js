@@ -5,6 +5,7 @@ import Chart from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import "../../styles/ManagerDashboard.css";
 
+
 const ManagerKpi = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -213,6 +214,7 @@ const ManagerKpi = () => {
                 </table>
             </div>
         </div>
+        
     );
 };
 

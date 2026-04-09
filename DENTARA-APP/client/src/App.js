@@ -37,6 +37,7 @@ import DailyWrapUpPage from './pages/Clinic/DailyWrapUp';
 import RecallList from './pages/Clinic/RecallList';
 import CommunicationsLog from './pages/Clinic/CommunicationsLog';
 import StaffSchedule from './pages/Clinic/StaffSchedule';
+import StaffAIChatBotPage from './pages/Clinic/StaffAIChatBotPage';
 
 //manager pages
 import ManagerDashboard from './pages/Manager/ManagerDashboard';
@@ -116,6 +117,7 @@ function App() {
                         <Route path="recalls" element={<RecallList />} />
                         <Route path="schedule" element={<StaffSchedule />} />
                         <Route path="wrapup" element={<DailyWrapUpPage />} />
+                        <Route path="staffchatbot" element={<StaffAIChatBotPage />} />
                     </Route>
 
                     {/* Doctor Dashboard  */}

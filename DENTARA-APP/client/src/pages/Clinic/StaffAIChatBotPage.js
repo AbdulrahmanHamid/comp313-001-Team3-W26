@@ -1,38 +1,64 @@
-import React, { useEffect, useState } from "react";
+// export default StaffAIChatBotPage;
+
+import React, { useEffect, useMemo, useState } from "react";
 import StaffAIChatbot from "./StaffAIChatBot";
 import { listenToTasks } from "../../services/tasksService";
 import { listenToAllAppointments } from "../../services/appointmentsService";
+import { listenToStaff } from "../../services/usersService";
 import { useAuth } from "../../contexts/AuthContext";
 
 const StaffAIChatBotPage = () => {
-  const [tasks, setTasks] = useState([]);
-  const [appointments, setAppointments] = useState([]);
-
   const { currentUser } = useAuth();
 
-  // ✅ Define TODAY
+  const [tasks, setTasks] = useState([]);
+  const [appointments, setAppointments] = useState([]);
+  const [staffList, setStaffList] = useState([]);
+
   const today = new Date().toISOString().split("T")[0];
 
-  // ✅ Define STAFF NAME (important)
-  const currentStaffFullName =
-    currentUser?.displayName || currentUser?.email || "Staff Member";
-
   useEffect(() => {
-    const unsubTasks = listenToTasks(setTasks);
-    const unsubAppts = listenToAllAppointments(setAppointments);
+    const unsubTasks = listenToTasks((data) => {
+      setTasks(data || []);
+    });
+
+    const unsubAppointments = listenToAllAppointments((data) => {
+      setAppointments(data || []);
+    });
+
+    const unsubStaff = listenToStaff((data) => {
+      setStaffList(data || []);
+    });
 
     return () => {
-      unsubTasks();
-      unsubAppts();
+      if (typeof unsubTasks === "function") unsubTasks();
+      if (typeof unsubAppointments === "function") unsubAppointments();
+      if (typeof unsubStaff === "function") unsubStaff();
     };
   }, []);
 
-  // Build staffData for chatbot
-  const staffData = {
-    tasks,
-    appointments,
-    currentStaffName: currentStaffFullName
-  };
+  const currentStaffFullName = useMemo(() => {
+    const matchedStaff = staffList.find(
+      (staff) =>
+        staff.email &&
+        currentUser?.email &&
+        staff.email.toLowerCase() === currentUser.email.toLowerCase()
+    );
+
+    return (
+      matchedStaff?.fullName ||
+      currentUser?.displayName ||
+      currentUser?.email ||
+      "Staff Member"
+    );
+  }, [staffList, currentUser]);
+
+  const staffData = useMemo(() => {
+    return {
+      tasks,
+      appointments,
+      currentStaffName: currentStaffFullName
+    };
+  }, [tasks, appointments, currentStaffFullName]);
 
   return (
     <div className="manager-page">
@@ -41,8 +67,8 @@ const StaffAIChatBotPage = () => {
 
       <StaffAIChatbot
         staffData={staffData}
-        selectedStaff={currentStaffFullName}   // ✅ FIXED
-        selectedDate={today}                  // ✅ FIXED
+        selectedStaff={currentStaffFullName}
+        selectedDate={today}
       />
     </div>
   );

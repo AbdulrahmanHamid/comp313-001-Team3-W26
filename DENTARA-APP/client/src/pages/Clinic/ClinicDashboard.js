@@ -127,6 +127,8 @@ const ClinicDashboard = () => {
                         <li><Link to="/staff-dashboard/messages" className={location.pathname.includes('/messages') ? 'active' : ''}>Call & Message Log</Link></li>
                         <li><Link to="/staff-dashboard/recalls" className={location.pathname.includes('/recalls') ? 'active' : ''}>Recall List</Link></li>
                         <li><Link to="/staff-dashboard/schedule" className={location.pathname.includes('/schedule') ? 'active' : ''}>Staff Schedule</Link></li>
+                        <li><Link to="/staff-dashboard/staffchatbot" className={location.pathname.includes('/staffchatbot') ? 'active' : ''}>AI Assistant</Link></li>
+                      
                     </ul>
                     <div className="logout-container">
                         <button onClick={handleLogout} className="signout-btn">Sign Out</button>

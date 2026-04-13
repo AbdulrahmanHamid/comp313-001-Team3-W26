@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { FiLogOut, FiHome, FiCalendar, FiUsers, FiDatabase, FiAlertTriangle,FiTarget} from "react-icons/fi";
+import { FiLogOut, FiHome, FiCalendar, FiDatabase, FiAlertTriangle,FiTarget, FiCpu} from "react-icons/fi";
 
 import "../../styles/ManagerDashboard.css";
 
@@ -52,7 +52,7 @@ const ManagerDashboard = () => {
 
               <li>
                 <NavLink to="/manager-dashboard/AIChatBot" className="nav-link">
-                  <FiCalendar className="nav-icon" /> AI Assistant
+                  <FiCpu className="nav-icon" /> AI Assistant
                 </NavLink>
               </li>
 

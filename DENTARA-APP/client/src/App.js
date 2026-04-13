@@ -17,6 +17,7 @@ import DoctorSchedule from './pages/Doctor/DoctorSchedule';
 import DoctorKPIsView from "./pages/Doctor/DoctorKPIsView";
 import DoctorPatientDetails from "./pages/Doctor/DoctorPatientDetails";
 import DoctorPatientsList from "./pages/Doctor/DoctorPatientsList";
+import DoctorAIChatBotPage from './pages/Doctor/DoctorAIChatBotPage';
 
 //clinic pages
 import ClinicDashboard from './pages/Clinic/ClinicDashboard';
@@ -135,6 +136,8 @@ function App() {
                         <Route path="kpis" element={<DoctorKPIsView />} />
                         <Route path="patients" element={<DoctorPatientsList />} />
                         <Route path="patients/:patientId" element={<DoctorPatientDetails />} />
+                        <Route path="doctor-ai-chat" element={<DoctorAIChatBotPage />} />
+                        
                     </Route>
 
                     {/* Manager Dashboard*/}

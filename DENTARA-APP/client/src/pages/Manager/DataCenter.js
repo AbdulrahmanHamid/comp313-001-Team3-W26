@@ -6,7 +6,7 @@ import "../../styles/ManagerDashboard.css";
 
 const DataCenter = () => {
   const { currentUser } = useAuth();
-  
+
   // Upload & Reports State
   const [reports, setReports] = useState([]);
   const [file, setFile] = useState(null);
@@ -26,14 +26,16 @@ const DataCenter = () => {
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "application/vnd.ms-excel",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "text/csv"
+    "text/csv", 
+    "application/vnd.ms-powerpoint", 
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation"
   ];
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
   useEffect(() => {
     const unsubReports = listenToReports(setReports);
     const unsubBackup = listenToLatestBackup(setLatestBackup); // Listen for Last Backup Date
-    
+
     return () => {
       unsubReports();
       unsubBackup();
@@ -43,7 +45,7 @@ const DataCenter = () => {
   // Handle File Upload Validation
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    
+
     if (!selectedFile) {
       setFile(null);
       return;
@@ -99,7 +101,7 @@ const DataCenter = () => {
   // Handle Manual Backup Trigger (CS-3)
   const handleManualBackup = async () => {
     if (!window.confirm("This will compile all current patient records and save a backup to the cloud. Proceed?")) return;
-    
+
     setBackingUp(true);
     try {
       await triggerPatientBackup(currentUser.email);
@@ -116,7 +118,7 @@ const DataCenter = () => {
   };
 
   // Filter reports based on the search term
-  const filteredReports = reports.filter(report => 
+  const filteredReports = reports.filter(report =>
     report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     report.fileName.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -168,19 +170,19 @@ const DataCenter = () => {
               </p>
             )}
           </div>
-          
+
           <div style={{ display: "flex", gap: "10px" }}>
             {latestBackup && (
-              <button 
-                className="btn-outline" 
+              <button
+                className="btn-outline"
                 style={{ padding: "10px 20px", borderRadius: "8px", fontWeight: "bold" }}
                 onClick={() => window.open(latestBackup.fileUrl, "_blank")}
               >
                 Download Latest
               </button>
             )}
-            <button 
-              className="save-btn" 
+            <button
+              className="save-btn"
               style={{ marginTop: 0, width: "auto", padding: "10px 20px", borderRadius: "8px" }}
               onClick={handleManualBackup}
               disabled={backingUp}
@@ -230,7 +232,7 @@ const DataCenter = () => {
       <div className="data-list-section">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px", flexWrap: "wrap", gap: "10px" }}>
           <h3 style={{ margin: 0 }}>Available Reports</h3>
-          
+
           <input
             type="text"
             placeholder="Search by title or file name..."

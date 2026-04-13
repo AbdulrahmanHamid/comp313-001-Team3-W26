@@ -344,6 +344,7 @@
   background-color: #f9f9f9;
   border-top: 2px solid #eee;
 }
+
 /* Goals Grid */
 .goals-grid {
   display: grid;
@@ -375,7 +376,8 @@
   align-items: center;
   margin-bottom: 15px;
 }
-goal-numbers {
+
+.goal-numbers {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 10px;
@@ -405,7 +407,8 @@ goal-numbers {
 .progress-bar-fill.fill-success {
   background-color: #78d494;
 }
-goal-footer {
+
+.goal-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -422,75 +425,12 @@ goal-footer {
 }
 
 .btn-icon-danger:hover {
-  color: #cc0000;
-}
-/* .ai-chatbot-box {
-  margin-top: 24px;
-  background: #fff;
-  border-radius: 14px;
-  padding: 16px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  color:#cc0000;
 }
 
-.ai-chatbot-header h3 {
-  margin: 0 0 12px 0;
-  color: #333;
-}
-
-.ai-chatbot-messages {
-  max-height: 320px;
-  overflow-y: auto;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  padding: 12px;
-  background: #fafafa;
-  margin-bottom: 12px;
-}
-
-.ai-message {
-  padding: 10px 12px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  line-height: 1.4;
-  font-size: 14px;
-}
-
-.ai-message.user {
-  background: #e8e0ff;
-  text-align: right;
-}
-
-.ai-message.assistant {
-  background: #f1f1f1;
-  text-align: left;
-}
-
-.ai-chatbot-input {
-  display: flex;
-  gap: 10px;
-}
-
-.ai-chatbot-input input {
-  flex: 1;
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
-
-.ai-chatbot-input button {
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  background: #7c5cce;
-  color: white;
-  cursor: pointer;
-}
-
-.ai-chatbot-input button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-} */
-
+/* =========================================
+   AI CHATBOT STYLES
+========================================= */
 .ai-chatbot-box {
   width: 100%;
   max-width: 850px;
@@ -649,14 +589,29 @@ goal-footer {
 }
 
 @keyframes bounce {
-  0%,
-  80%,
-  100% {
+  0%, 80%, 100% {
     transform: scale(0.7);
     opacity: 0.5;
   }
   40% {
     transform: scale(1.1);
     opacity: 1;
+  }
+}
+
+/* =========================================
+   DATA CENTER RESPONSIVE STYLES (CS-2 Test 4)
+========================================= */
+@media screen and (max-width: 768px) {
+  .data-list-section > div {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+  
+  .data-list-section input[type="text"],
+  .manage-header input[type="text"] {
+    width: 100%;
+    margin-top: 10px;
+    box-sizing: border-box;
   }
 }

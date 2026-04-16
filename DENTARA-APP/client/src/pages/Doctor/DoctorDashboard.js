@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { FiLogOut, FiHome, FiCalendar, FiUsers, FiCpu } from 'react-icons/fi'; 
+import { FiLogOut, FiHome, FiCalendar, FiUsers, FiMessageCircle } from 'react-icons/fi'; 
 import '../../styles/DoctorDashboard.css';
 
 
@@ -38,7 +38,7 @@ const DoctorDashboard = () => {
 
               <li>
             <NavLink to="/doctor-dashboard/doctor-ai-chat" className="nav-link">
-              <FiCpu className="nav-icon" /> AI Assistant
+              <FiMessageCircle className="nav-icon" /> AI Assistant
             </NavLink>
             </li>
             </ul>

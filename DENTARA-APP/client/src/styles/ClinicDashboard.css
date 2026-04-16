@@ -7,43 +7,49 @@
   height: 100vh;
   font-family: 'Poppins', sans-serif;
 }
+
 /********************************************
   HEADER SECTION
 ********************************************/
 .clinic-header {
-  background-color: #c3f23f;
+  background-color: #78d494;
   padding: 15px 30px;
   color: #000;
   font-weight: 700;
   font-size: 1.6rem;
-  border-bottom: 3px solid #a8dc3a;
+  border-bottom: 3px solid #47b86d;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .clinic-header-buttons {
   display: flex;
   gap: 10px;
 }
+
 .kpi-btn,
 .wrapup-btn {
-  background-color: #e9e6ff;
-  border: 2px solid #3c0094;
+  background-color: #eaffef;
+  border: 2px solid #47b86d;
   border-radius: 25px;
   padding: 8px 18px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
+
 .kpi-btn:hover,
 .wrapup-btn:hover {
-  background-color: #b9a7ff;
-  color: white;
-}
-.wrapup-btn.active {
-  background-color: #7e5cfb;
+  background-color: #47b86d;
   color: #fff;
 }
+
+.wrapup-btn.active {
+  background-color: #2f9e57;
+  color: #fff;
+}
+
 /********************************************
   BODY LAYOUT (SIDEBAR + MAIN)
 ********************************************/
@@ -51,36 +57,40 @@
   display: flex;
   flex: 1;
 }
+
 /************** SIDEBAR **************/
 .clinic-sidebar {
+  background-color: #a6e4b6;
   width: 220px;
-  background-color: #c3f23f;
+  padding: 25px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 20px;
-  font-weight: bold;
 }
+
 .clinic-sidebar ul {
   list-style-type: none;
   padding: 0;
   margin: 0;
 }
+
 .clinic-sidebar li {
   margin-bottom: 20px;
 }
+
 .clinic-sidebar a {
   display: flex;
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  color: #3a2b00;
+  color: #00401c;
   font-weight: 600;
   transition: color 0.3s;
 }
+
 .clinic-sidebar a:hover,
 .clinic-sidebar a.active {
-  color: #3c0094;
+  color: #047857;
 }
 .logout-container {
   margin-top: auto;
@@ -1738,4 +1748,16 @@
   .chat-bubble {
     max-width: 85%;
   }
+}
+
+.nav-icon {
+  margin-right: 10px;
+  font-size: 18px;
+  vertical-align: middle;
+}
+
+.clinic-sidebar ul li a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }

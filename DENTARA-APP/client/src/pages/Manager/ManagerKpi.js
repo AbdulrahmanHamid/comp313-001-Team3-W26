@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { listenToFilteredKPITrends } from "../../services/managerService";
 import { listenToDoctors } from "../../services/usersService";
-import { generateDentaraAIResponse } from "../../services/aiService";
+import { generateAIResponse } from "../../services/aiService";
 import Chart from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import "../../styles/ManagerDashboard.css";
@@ -153,7 +153,7 @@ const ManagerKpi = () => {
             
             const prompt = `You are a clinic management AI advisor. Analyze the following appointment data and provide a concise, professional 3-paragraph strategy report for the manager. Do not use emojis in your response. Data summary: Total appointments: ${total}. Status breakdown: ${statusSummary}. Suggest operational improvements based on these numbers.`;
             
-            const response = await generateDentaraAIResponse(prompt);
+            const response = await generateAIResponse(prompt);
             setAiReport(response);
         } catch (error) {
             console.error("Error generating report:", error);

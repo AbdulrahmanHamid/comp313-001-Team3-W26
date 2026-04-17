@@ -3,6 +3,7 @@
 
 import React, { useMemo, useState } from "react";
 import { generateAIResponse, STAFF_SYSTEM_CONTEXT } from "../../services/aiService";
+//import "./AIChatbot.css";
 
 const SUGGESTED_QUESTIONS = [
   "What are my tasks for today?",

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getClinicKPIs, listenToAllAlerts } from "../../services/managerService";
+import { generateDentaraAIResponse } from "../../services/aiService";
+import { db } from "../../firebase/firebaseConfig";
+import { collection, addDoc } from "firebase/firestore";
 import "../../styles/ManagerDashboard.css";
 
 const ManagerHome = () => {
@@ -9,13 +12,52 @@ const ManagerHome = () => {
   const [recentAlerts, setRecentAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // AI-3 Insight State
+  const [aiInsight, setAiInsight] = useState("");
+  const [insightDetails, setInsightDetails] = useState("");
+  const [loadingInsight, setLoadingInsight] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+  const [insightResolved, setInsightResolved] = useState(false);
+  const [insightType, setInsightType] = useState(""); 
+
   useEffect(() => {
     // KPIs
     const fetchKPIs = async () => {
       const kpiData = await getClinicKPIs();
       setKpis(kpiData);
       setLoading(false);
+
+      // AI-3 Revenue Insight Calculation
+      if (kpiData && kpiData.total > 0) {
+        const cancelRate = (kpiData.cancelled / kpiData.total) * 100;
+
+        // Test 4: Positive Reinforcement for perfect attendance
+        if (kpiData.noShows === 0 && kpiData.cancelled === 0) {
+            setInsightType("positive");
+            setAiInsight("Excellent work. The AI system detects flawless attendance this period. Zero no-shows and zero cancellations means your clinic is operating at maximum revenue capacity and peak efficiency.");
+        }
+        // Test 1: High Cancellation Check
+        else if (cancelRate > 10) {
+          setInsightType("warning");
+          setLoadingInsight(true);
+          try {
+            const prompt = `The clinic has a high cancellation rate of ${cancelRate.toFixed(1)}% (${kpiData.cancelled} out of ${kpiData.total} appointments). Write a brief 2-sentence insight explaining the potential revenue impact and suggest one simple strategy to reduce cancellations. Do not use emojis.`;
+            const response = await generateDentaraAIResponse(prompt);
+            setAiInsight(response);
+
+            // Fetch detailed breakdown data for Test 2
+            const detailedPrompt = `Provide a detailed breakdown explaining the estimated lost revenue due to ${kpiData.cancelled} cancellations, assuming an average appointment value of $150. List 3 specific corrective actions. Do not use emojis.`;
+            const details = await generateDentaraAIResponse(detailedPrompt);
+            setInsightDetails(details);
+          } catch (error) {
+            setAiInsight("AI Insight unavailable. High cancellation rate detected. Review scheduling policies.");
+            setInsightDetails("Detailed breakdown unavailable.");
+          }
+          setLoadingInsight(false);
+        }
+      }
     };
+    
     const unsubAlerts = listenToAllAlerts((list) => {
       // Filter for only open/urgent alerts and take the top 3 for the dashboard
       const urgent = list
@@ -27,6 +69,21 @@ const ManagerHome = () => {
     fetchKPIs();
     return () => unsubAlerts();
   }, []);
+
+  // Test 3: Resolve Insight and update database
+  const handleResolveInsight = async () => {
+      try {
+          await addDoc(collection(db, "resolvedInsights"), {
+              resolvedAt: new Date().toISOString(),
+              note: "Manager reviewed and resolved AI cancellation insight"
+          });
+          setInsightResolved(true);
+          setShowDetails(false);
+      } catch (error) {
+          console.error("Error saving resolution to database:", error);
+          setInsightResolved(true);
+      }
+  };
 
   if (loading) return <div className="manager-main"><p>Loading Dashboard...</p></div>;
 
@@ -56,12 +113,61 @@ const ManagerHome = () => {
         </div>
       </section>
 
+      {/* AI-3 REVENUE INSIGHT CARD (Interactive for Tests 2, 3, and 4) */}
+      {!insightResolved && insightType !== "" && (
+        <div 
+            className="manage-box" 
+            style={{ 
+                borderColor: insightType === "positive" ? "#78d494" : "#ffb8b8", 
+                backgroundColor: insightType === "positive" ? "#f6fff9" : "#fff5f5", 
+                marginBottom: "20px", 
+                cursor: insightType === "warning" ? "pointer" : "default" 
+            }} 
+            onClick={() => insightType === "warning" && !loadingInsight && setShowDetails(!showDetails)}
+        >
+          <div className="manage-header" style={{ borderBottomColor: insightType === "positive" ? "#47b86d" : "#ff4444" }}>
+            <h3 style={{ color: insightType === "positive" ? "#00401c" : "#cc0000", display: "flex", alignItems: "center", gap: "8px" }}>
+              <span style={{ fontSize: "1.2rem", fontWeight: "bold" }}>{insightType === "positive" ? "[SUCCESS]" : "[ALERT]"}</span> AI Revenue Insight
+            </h3>
+          </div>
+          <div style={{ padding: "10px 0", color: "#333", lineHeight: "1.5" }}>
+            {loadingInsight ? (
+              <p>Loading AI insight...</p>
+            ) : (
+              <>
+                <p style={{ margin: 0, fontWeight: "500" }}>{aiInsight}</p>
+                
+                {/* Test 2: Detailed Breakdown View */}
+                {showDetails && insightType === "warning" && (
+                    <div style={{ marginTop: "15px", padding: "15px", backgroundColor: "white", borderRadius: "8px", border: "1px solid #ffb8b8" }}>
+                        <h4 style={{ marginTop: 0, color: "#cc0000" }}>Detailed Revenue Breakdown</h4>
+                        <p style={{ whiteSpace: "pre-wrap" }}>{insightDetails}</p>
+                        
+                        {/* Test 3: Resolve Button */}
+                        <button 
+                            className="save-btn" 
+                            onClick={(e) => { e.stopPropagation(); handleResolveInsight(); }}
+                            style={{ backgroundColor: "#cc0000", marginTop: "10px" }}
+                        >
+                            Resolve and Dismiss Insight
+                        </button>
+                    </div>
+                )}
+                {insightType === "warning" && !showDetails && (
+                    <p style={{ fontSize: "0.85rem", color: "#666", marginTop: "10px", fontStyle: "italic" }}>Click this card to view detailed breakdown and actions.</p>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="middle-panels">
 
         {/* M1.2: QUICK ALERTS FEED */}
         <section className="alerts">
           <div className="section-header">
-            <h3>⚠️ Urgent Alerts</h3>
+            <h3>[URGENT] Alerts</h3>
             <button className="btn-sm btn-outline" onClick={() => navigate('/manager-dashboard/alerts')}>
               View All
             </button>

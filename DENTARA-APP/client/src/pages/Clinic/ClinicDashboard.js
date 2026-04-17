@@ -3,6 +3,19 @@ import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { listenToAllPatients } from "../../services/patientsService";
 import { listenToActiveNotifications, markNotificationRead } from "../../services/notificationsService";
+import {
+  FiHome,
+  FiCalendar,
+  FiCheckSquare,
+  FiAlertCircle,
+  FiMessageSquare,
+  FiClock,
+  FiCpu,
+  FiLogOut
+} from "react-icons/fi";
+
+import { MdOutlineMedicalServices } from "react-icons/md";
+import { FaUserInjured } from "react-icons/fa";
 import "../../styles/ClinicDashboard.css";
 
 const ClinicDashboard = () => {
@@ -118,20 +131,68 @@ const ClinicDashboard = () => {
 
             <div className="clinic-body">
                 <nav className="clinic-sidebar">
+                
                     <ul>
-                        <li><Link to="/staff-dashboard/home" className={location.pathname.includes('/home') ? 'active' : ''}>Dashboard</Link></li>
-                        <li><Link to="/staff-dashboard/appointments" className={location.pathname.includes('/appointments') ? 'active' : ''}>Appointments</Link></li>
-                        <li><Link to="/staff-dashboard/tasks" className={location.pathname.includes('/tasks') ? 'active' : ''}>Tasks</Link></li>
-                        <li><Link to="/staff-dashboard/patients" className={location.pathname.includes('/patients') ? 'active' : ''}>Patients</Link></li>
-                        <li><Link to="/staff-dashboard/no-shows" className={location.pathname.includes('/no-shows') ? 'active' : ''}>No-Shows</Link></li>
-                        <li><Link to="/staff-dashboard/messages" className={location.pathname.includes('/messages') ? 'active' : ''}>Call & Message Log</Link></li>
-                        <li><Link to="/staff-dashboard/recalls" className={location.pathname.includes('/recalls') ? 'active' : ''}>Recall List</Link></li>
-                        <li><Link to="/staff-dashboard/schedule" className={location.pathname.includes('/schedule') ? 'active' : ''}>Staff Schedule</Link></li>
-                        <li><Link to="/staff-dashboard/staffchatbot" className={location.pathname.includes('/staffchatbot') ? 'active' : ''}>AI Assistant</Link></li>
-                      
-                    </ul>
+                <li>
+                    <Link to="/staff-dashboard/home" className={location.pathname.includes('/home') ? 'active' : ''}>
+                    <FiHome className="nav-icon" /> Dashboard
+                    </Link>
+                </li>
+
+                <li>
+                    <Link to="/staff-dashboard/appointments" className={location.pathname.includes('/appointments') ? 'active' : ''}>
+                    <FiCalendar className="nav-icon" /> Appointments
+                    </Link>
+                </li>
+
+                <li>
+                    <Link to="/staff-dashboard/tasks" className={location.pathname.includes('/tasks') ? 'active' : ''}>
+                    <FiCheckSquare className="nav-icon" /> Tasks
+                    </Link>
+                </li>
+
+                <li>
+                    <Link to="/staff-dashboard/patients" className={location.pathname.includes('/patients') ? 'active' : ''}>
+                    <FaUserInjured className="nav-icon" /> Patients
+                    </Link>
+                </li>
+
+                <li>
+                    <Link to="/staff-dashboard/no-shows" className={location.pathname.includes('/no-shows') ? 'active' : ''}>
+                    <FiAlertCircle className="nav-icon" /> No-Shows
+                    </Link>
+                </li>
+
+                <li>
+                    <Link to="/staff-dashboard/messages" className={location.pathname.includes('/messages') ? 'active' : ''}>
+                    <FiMessageSquare className="nav-icon" /> Call & Message Log
+                    </Link>
+                </li>
+
+                <li>
+                    <Link to="/staff-dashboard/recalls" className={location.pathname.includes('/recalls') ? 'active' : ''}>
+                    <MdOutlineMedicalServices className="nav-icon" /> Recall List
+                    </Link>
+                </li>
+
+                <li>
+                    <Link to="/staff-dashboard/schedule" className={location.pathname.includes('/schedule') ? 'active' : ''}>
+                    <FiClock className="nav-icon" /> Staff Schedule
+                    </Link>
+                </li>
+
+                <li>
+                    <Link to="/staff-dashboard/staffchatbot" className={location.pathname.includes('/staffchatbot') ? 'active' : ''}>
+                    <FiCpu className="nav-icon" /> AI Assistant
+                    </Link>
+                </li>
+                </ul>
                     <div className="logout-container">
-                        <button onClick={handleLogout} className="signout-btn">Sign Out</button>
+                        {/* <button onClick={handleLogout} className="signout-btn">Sign Out</button> */}
+
+                        <button onClick={handleLogout} className="signout-btn">
+  <FiLogOut /> Sign Out
+</button>
                     </div>
                 </nav>
 

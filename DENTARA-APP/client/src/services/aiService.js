@@ -3,49 +3,91 @@ const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
 
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
-export const MANAGER_SYSTEM_CONTEXT = `
-You are the Dentara Enterprise AI Assistant.
-
-Your role is to help clinic managers analyze appointments, trends, performance, provider activity, and operational concerns.
-
-Rules:
-- Always complete your answer fully. Do not stop mid-sentence.
-- Respond in plain text only.
-- Do not use markdown, bullet points, or asterisks.
-- Start with a direct answer, then give short supporting details.
-- If counts or data exist, mention them clearly.
-- If trend data is incomplete, explicitly say: "Trend data is limited or incomplete."
-- Do not invent data.
-- If data is missing, clearly say so.
-- Keep answers concise and useful for a manager.
-
-Tone:
-- Professional and concise
-- Manager-focused insights
-`;
-
 export const STAFF_SYSTEM_CONTEXT = `
-You are the Dentara Staff AI Assistant.
+You are a helpful staff assistant for a dental clinic.
+Answer clearly and briefly based only on the provided staff data.
+If data is missing, say so.
+`;
 
-Your role is to help clinic staff manage daily tasks, priorities, follow-ups, and pending work.
+export const MANAGER_SYSTEM_CONTEXT = `
+You are a helpful manager assistant for a dental clinic.
+Answer clearly and briefly based only on the provided clinic data.
+If data is missing, say so.
+`;
+
+export const DOCTOR_SYSTEM_CONTEXT = `
+You are a helpful doctor assistant for a dental clinic.
+Your job is to help the doctor quickly understand:
+- today's schedule
+- pending / completed / cancelled appointments
+- checked-in patients
+- assigned patients
+- patient names, appointment times, reasons, and rooms
 
 Rules:
-- Always complete your answer fully. Do not stop mid-sentence.
-- Respond in plain text only.
-- Do not use markdown, bullet points, headings, or asterisks.
-- Keep the response short and practical.
-- Focus on the current staff member only.
-- Focus on daily tasks, pending items, overdue work, priorities, and follow-ups.
-- If there are no tasks due today, say that clearly first.
-- Then also mention pending tasks, overdue tasks, and follow-up appointments if any exist.
-- When asked about highest priority, choose the highest priority open task.
-- Do not invent data.
-- If data is missing, clearly say so.
-
-Tone:
-- Professional, clear, and actionable
-- Staff-focused
+- Answer only from the provided data.
+- Be concise, clear, and professional.
+- If there are no appointments or assigned patients, say that clearly.
+- Do not invent medical details.
+- If asked for something not present in the context, say it is not available.
 `;
+
+export function buildDoctorDataContext({
+  doctorName,
+  selectedDate,
+  appointments = [],
+  patients = []
+}) {
+  const total = appointments.length;
+  const completed = appointments.filter((a) => a.status === "Completed").length;
+  const pending = appointments.filter(
+    (a) => a.status === "Pending" || a.status === "Confirmed"
+  ).length;
+  const checkedIn = appointments.filter((a) => a.status === "Checked-in").length;
+  const inProgress = appointments.filter((a) => a.status === "In Progress").length;
+  const cancelled = appointments.filter(
+    (a) => a.status === "Cancelled" || a.status === "No-Show"
+  ).length;
+
+  const appointmentLines =
+    appointments.length > 0
+      ? appointments
+          .map(
+            (a, index) =>
+              `${index + 1}. Time: ${a.time || "N/A"}, Patient: ${a.patientName || "Unknown"}, Reason: ${a.reason || "N/A"}, Room: ${a.room || "N/A"}, Status: ${a.status || "N/A"}`
+          )
+          .join("\n")
+      : "No appointments found.";
+
+  const patientLines =
+    patients.length > 0
+      ? patients
+          .map(
+            (p, index) =>
+              `${index + 1}. ${`${p.firstName || ""} ${p.lastName || ""}`.trim()} | Email: ${p.email || "N/A"} | Phone: ${p.phone || "N/A"}`
+          )
+          .join("\n")
+      : "No assigned patients found.";
+
+  return `
+Doctor Name: ${doctorName || "Unknown"}
+Selected Date: ${selectedDate}
+
+Appointment Summary:
+- Total: ${total}
+- Pending/Confirmed: ${pending}
+- Completed: ${completed}
+- Checked-in: ${checkedIn}
+- In Progress: ${inProgress}
+- Cancelled/No-Show: ${cancelled}
+
+Appointments:
+${appointmentLines}
+
+Assigned Patients:
+${patientLines}
+  `.trim();
+}
 
 export const generateAIResponse = async (
   userPrompt,

@@ -6,6 +6,8 @@ import { listenToTasks } from "../../services/tasksService";
 import { listenToAllAppointments } from "../../services/appointmentsService";
 import { listenToStaff } from "../../services/usersService";
 import { useAuth } from "../../contexts/AuthContext";
+import "../../styles/ClinicDashboard.css";
+
 
 const StaffAIChatBotPage = () => {
   const { currentUser } = useAuth();

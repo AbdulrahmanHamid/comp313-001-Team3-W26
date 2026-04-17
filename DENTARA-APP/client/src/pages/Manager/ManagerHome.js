@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getClinicKPIs, listenToAllAlerts } from "../../services/managerService";
-import { generateDentaraAIResponse } from "../../services/aiService";
+import { generateAIResponse } from "../../services/aiService";
 import { db } from "../../firebase/firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 import "../../styles/ManagerDashboard.css";
@@ -42,12 +42,12 @@ const ManagerHome = () => {
           setLoadingInsight(true);
           try {
             const prompt = `The clinic has a high cancellation rate of ${cancelRate.toFixed(1)}% (${kpiData.cancelled} out of ${kpiData.total} appointments). Write a brief 2-sentence insight explaining the potential revenue impact and suggest one simple strategy to reduce cancellations. Do not use emojis.`;
-            const response = await generateDentaraAIResponse(prompt);
+            const response = await generateAIResponse(prompt);
             setAiInsight(response);
 
             // Fetch detailed breakdown data for Test 2
             const detailedPrompt = `Provide a detailed breakdown explaining the estimated lost revenue due to ${kpiData.cancelled} cancellations, assuming an average appointment value of $150. List 3 specific corrective actions. Do not use emojis.`;
-            const details = await generateDentaraAIResponse(detailedPrompt);
+            const details = await generateAIResponse(detailedPrompt);
             setInsightDetails(details);
           } catch (error) {
             setAiInsight("AI Insight unavailable. High cancellation rate detected. Review scheduling policies.");

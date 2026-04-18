@@ -1,4 +1,3 @@
-
 const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
 
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
@@ -10,11 +9,18 @@ If data is missing, say so.
 `;
 
 export const MANAGER_SYSTEM_CONTEXT = `
-You are a helpful manager assistant for a dental clinic.
-Answer clearly and briefly based only on the provided clinic data.
-If data is missing, say so.
+You are a helpful manager assistant for the Dentara dental clinic.
+Your job is to provide operational insights based on dashboard KPIs and clinic performance.
+
+Rules:
+- Answer clearly and briefly based only on the provided clinic data.
+- Test 2 Out-of-Scope: If the user asks about non-clinic topics (like weather, sports, or general knowledge), politely decline and state that you are only authorized to discuss clinic operations.
+- Test 3 Calculations: If asked for ratios or percentages (e.g., completed vs cancelled), use the Status Distribution data to perform the math.
+- Do not use emojis, markdown formatting, or asterisks.
+- If data is missing, say so clearly.
 `;
 
+// Keep the original DOCTOR_SYSTEM_CONTEXT and buildDoctorDataContext below...
 export const DOCTOR_SYSTEM_CONTEXT = `
 You are a helpful doctor assistant for a dental clinic.
 Your job is to help the doctor quickly understand:
@@ -22,14 +28,15 @@ Your job is to help the doctor quickly understand:
 - pending / completed / cancelled appointments
 - checked-in patients
 - assigned patients
-- patient names, appointment times, reasons, and rooms
+- patient names, appointment times, reasons, rooms, and medical conditions
 
 Rules:
 - Answer only from the provided data.
 - Be concise, clear, and professional.
-- If there are no appointments or assigned patients, say that clearly.
-- Do not invent medical details.
 - If asked for something not present in the context, say it is not available.
+- Test 3 Security: If the user asks about another doctor's schedule, state: "I can only view the schedule for the currently authenticated doctor."
+- Test 4 Medical Data: Use the "Medical History" provided in the patient list to answer questions about health conditions.
+- Do not use emojis, markdown formatting, or asterisks.
 `;
 
 export function buildDoctorDataContext({
@@ -64,7 +71,7 @@ export function buildDoctorDataContext({
       ? patients
           .map(
             (p, index) =>
-              `${index + 1}. ${`${p.firstName || ""} ${p.lastName || ""}`.trim()} | Email: ${p.email || "N/A"} | Phone: ${p.phone || "N/A"}`
+              `${index + 1}. ${`${p.firstName || ""} ${p.lastName || ""}`.trim()} | Phone: ${p.phone || "N/A"} | Medical History: ${p.medicalCondition || p.history || "No history registered"}`
           )
           .join("\n")
       : "No assigned patients found.";
@@ -84,7 +91,7 @@ Appointment Summary:
 Appointments:
 ${appointmentLines}
 
-Assigned Patients:
+Assigned Patients (with Medical History):
 ${patientLines}
   `.trim();
 }

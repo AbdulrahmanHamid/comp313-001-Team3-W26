@@ -102,8 +102,12 @@ const DoctorAIChatBot = () => {
     setLoading(true);
 
     try {
+      // Build chat history string to send to Gemini (Memory Fix)
+      const chatHistory = messages.map(m => `${m.sender === 'user' ? 'User' : 'Assistant'}: ${m.text}`).join('\n');
+      const enrichedPrompt = `Chat History:\n${chatHistory}\n\nUser's new question: ${questionText}`;
+
       const aiReply = await generateAIResponse(
-        questionText,
+        enrichedPrompt,
         dataContext,
         DOCTOR_SYSTEM_CONTEXT
       );

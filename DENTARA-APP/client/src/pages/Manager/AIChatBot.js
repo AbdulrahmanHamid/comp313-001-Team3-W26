@@ -1,4 +1,3 @@
-
 // export default AIChatbot;
 
 import React, { useMemo, useState } from "react";
@@ -114,8 +113,11 @@ Instructions:
     setLoading(true);
 
     try {
+      const chatHistory = messages.map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.text}`).join('\n');
+      const enrichedPrompt = `Chat History:\n${chatHistory}\n\nUser's new question: ${inputQuestion}`;
+
       const response = await generateAIResponse(
-        inputQuestion,
+        enrichedPrompt,
         dataContext,
         MANAGER_SYSTEM_CONTEXT
       );

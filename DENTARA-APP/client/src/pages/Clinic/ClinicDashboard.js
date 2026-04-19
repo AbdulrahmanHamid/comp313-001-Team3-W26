@@ -3,15 +3,17 @@ import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { listenToAllPatients } from "../../services/patientsService";
 import { listenToActiveNotifications, markNotificationRead } from "../../services/notificationsService";
+import { db } from "../../firebase/firebaseConfig";
+import { collection, onSnapshot } from "firebase/firestore";
 import {
-  FiHome,
-  FiCalendar,
-  FiCheckSquare,
-  FiAlertCircle,
-  FiMessageSquare,
-  FiClock,
-  FiCpu,
-  FiLogOut
+    FiHome,
+    FiCalendar,
+    FiCheckSquare,
+    FiAlertCircle,
+    FiMessageSquare,
+    FiClock,
+    FiCpu,
+    FiLogOut
 } from "react-icons/fi";
 
 import { MdOutlineMedicalServices } from "react-icons/md";
@@ -28,24 +30,75 @@ const ClinicDashboard = () => {
     const [notifications, setNotifications] = useState([]);
     const [overdueCount, setOverdueCount] = useState(0);
 
-    // Load active notifications and overdue patients (AC Test 1)
+    // Load active notifications and exactly match RecallList logic (AC Test 1)
     useEffect(() => {
         const unsubNotifs = listenToActiveNotifications(setNotifications);
 
-        const unsubPatients = listenToAllPatients((patients) => {
-            const today = new Date();
-            const overdue = patients.filter(p => {
-                if (!p.lastVisit) return false;
-                const lastVisit = new Date(p.lastVisit);
-                const monthsDiff = (today.getFullYear() - lastVisit.getFullYear()) * 12 + (today.getMonth() - lastVisit.getMonth());
-                return monthsDiff > 6 && (p.status !== "Contacted");
+        let currentPatients = [];
+        let currentAppointments = [];
+
+        const calculateOverdue = () => {
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+            const now = new Date();
+
+            const overdue = currentPatients.filter(p => {
+                // 1. If they have been contacted or are inactive, ignore them immediately
+                if (
+                    p.recallContacted === true ||
+                    !!p.recallContactedAt ||
+                    p.status === "Contacted" ||
+                    p.status === "Inactive"
+                ) {
+                    return false;
+                }
+
+                // 2. Find exact true last visit by scanning the appointments database
+                const patientAppts = currentAppointments.filter(
+                    (a) => a.patientId === p.id || a.patientName === (p.name || p.patientName || `${p.firstName || ''} ${p.lastName || ''}`.trim())
+                );
+
+                let latestPastApptDate = null;
+                patientAppts.forEach((a) => {
+                    const apptDateStr = a.date || a.appointmentDate;
+                    if (apptDateStr) {
+                        const apptDate = new Date(apptDateStr);
+                        if (!isNaN(apptDate) && apptDate < now) {
+                            if (!latestPastApptDate || apptDate > latestPastApptDate) {
+                                latestPastApptDate = apptDate;
+                            }
+                        }
+                    }
+                });
+
+                // 3. Fallback to patient creation fields if no appointments exist
+                const dateFallback = p.lastVisit || p.lastVisitDate || p.createdAt;
+                const trueLastVisit = latestPastApptDate || (dateFallback ? new Date(dateFallback) : null);
+
+                if (!trueLastVisit || isNaN(trueLastVisit)) return false;
+
+                // 4. They are overdue if their true last visit is older than exactly 6 months
+                return trueLastVisit < sixMonthsAgo;
             });
+
             setOverdueCount(overdue.length);
+        };
+
+        const unsubPatients = listenToAllPatients((patients) => {
+            currentPatients = patients || [];
+            calculateOverdue();
+        });
+
+        // Fetch appointments to mirror RecallList math
+        const unsubAppts = onSnapshot(collection(db, "appointments"), (snapshot) => {
+            currentAppointments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            calculateOverdue();
         });
 
         return () => {
             unsubNotifs();
             unsubPatients();
+            unsubAppts();
         };
     }, []);
 
@@ -89,7 +142,7 @@ const ClinicDashboard = () => {
                         <div style={{ padding: "15px", borderBottom: "2px solid #c3f23f", background: "#f8fbe7", borderRadius: "10px 10px 0 0" }}>
                             <h4 style={{ margin: 0, color: "#3c0094" }}>Notifications</h4>
                         </div>
-                        
+
                         <div className="notif-list">
                             {totalAlerts === 0 ? (
                                 <p style={{ padding: "15px", textAlign: "center", color: "#888" }}>No new notifications.</p>
@@ -131,68 +184,66 @@ const ClinicDashboard = () => {
 
             <div className="clinic-body">
                 <nav className="clinic-sidebar">
-                
+
                     <ul>
-                <li>
-                    <Link to="/staff-dashboard/home" className={location.pathname.includes('/home') ? 'active' : ''}>
-                    <FiHome className="nav-icon" /> Dashboard
-                    </Link>
-                </li>
+                        <li>
+                            <Link to="/staff-dashboard/home" className={location.pathname.includes('/home') ? 'active' : ''}>
+                                <FiHome className="nav-icon" /> Dashboard
+                            </Link>
+                        </li>
 
-                <li>
-                    <Link to="/staff-dashboard/appointments" className={location.pathname.includes('/appointments') ? 'active' : ''}>
-                    <FiCalendar className="nav-icon" /> Appointments
-                    </Link>
-                </li>
+                        <li>
+                            <Link to="/staff-dashboard/appointments" className={location.pathname.includes('/appointments') ? 'active' : ''}>
+                                <FiCalendar className="nav-icon" /> Appointments
+                            </Link>
+                        </li>
 
-                <li>
-                    <Link to="/staff-dashboard/tasks" className={location.pathname.includes('/tasks') ? 'active' : ''}>
-                    <FiCheckSquare className="nav-icon" /> Tasks
-                    </Link>
-                </li>
+                        <li>
+                            <Link to="/staff-dashboard/tasks" className={location.pathname.includes('/tasks') ? 'active' : ''}>
+                                <FiCheckSquare className="nav-icon" /> Tasks
+                            </Link>
+                        </li>
 
-                <li>
-                    <Link to="/staff-dashboard/patients" className={location.pathname.includes('/patients') ? 'active' : ''}>
-                    <FaUserInjured className="nav-icon" /> Patients
-                    </Link>
-                </li>
+                        <li>
+                            <Link to="/staff-dashboard/patients" className={location.pathname.includes('/patients') ? 'active' : ''}>
+                                <FaUserInjured className="nav-icon" /> Patients
+                            </Link>
+                        </li>
 
-                <li>
-                    <Link to="/staff-dashboard/no-shows" className={location.pathname.includes('/no-shows') ? 'active' : ''}>
-                    <FiAlertCircle className="nav-icon" /> No-Shows
-                    </Link>
-                </li>
+                        <li>
+                            <Link to="/staff-dashboard/no-shows" className={location.pathname.includes('/no-shows') ? 'active' : ''}>
+                                <FiAlertCircle className="nav-icon" /> No-Shows
+                            </Link>
+                        </li>
 
-                <li>
-                    <Link to="/staff-dashboard/messages" className={location.pathname.includes('/messages') ? 'active' : ''}>
-                    <FiMessageSquare className="nav-icon" /> Call & Message Log
-                    </Link>
-                </li>
+                        <li>
+                            <Link to="/staff-dashboard/messages" className={location.pathname.includes('/messages') ? 'active' : ''}>
+                                <FiMessageSquare className="nav-icon" /> Call & Message Log
+                            </Link>
+                        </li>
 
-                <li>
-                    <Link to="/staff-dashboard/recalls" className={location.pathname.includes('/recalls') ? 'active' : ''}>
-                    <MdOutlineMedicalServices className="nav-icon" /> Recall List
-                    </Link>
-                </li>
+                        <li>
+                            <Link to="/staff-dashboard/recalls" className={location.pathname.includes('/recalls') ? 'active' : ''}>
+                                <MdOutlineMedicalServices className="nav-icon" /> Recall List
+                            </Link>
+                        </li>
 
-                <li>
-                    <Link to="/staff-dashboard/schedule" className={location.pathname.includes('/schedule') ? 'active' : ''}>
-                    <FiClock className="nav-icon" /> Staff Schedule
-                    </Link>
-                </li>
+                        <li>
+                            <Link to="/staff-dashboard/schedule" className={location.pathname.includes('/schedule') ? 'active' : ''}>
+                                <FiClock className="nav-icon" /> Staff Schedule
+                            </Link>
+                        </li>
 
-                <li>
-                    <Link to="/staff-dashboard/staffchatbot" className={location.pathname.includes('/staffchatbot') ? 'active' : ''}>
-                    <FiCpu className="nav-icon" /> AI Assistant
-                    </Link>
-                </li>
-                </ul>
+                        <li>
+                            <Link to="/staff-dashboard/staffchatbot" className={location.pathname.includes('/staffchatbot') ? 'active' : ''}>
+                                <FiCpu className="nav-icon" /> AI Assistant
+                            </Link>
+                        </li>
+                    </ul>
                     <div className="logout-container">
-                        {/* <button onClick={handleLogout} className="signout-btn">Sign Out</button> */}
-
                         <button onClick={handleLogout} className="signout-btn">
-  <FiLogOut /> Sign Out
-</button>
+                            <FiLogOut /> Sign Out
+                        </button>
                     </div>
                 </nav>
 
